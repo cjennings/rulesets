@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "PostEditTool": [
+      {
+        "matcher": "**/*.py",
+        "command": "ruff format $FILE && ruff check --fix $FILE"
+      },
+      {
+        "matcher": "**/*.tf",
+        "command": "terraform fmt $FILE"
+      }
+    ],
+    "PreCommit": [
+      {
+        "command": "! grep -rn --include='*.py' --include='*.ts' --include='*.tsx' --include='*.tf' --include='*.yml' --include='*.yaml' -E '(AKIA[0-9A-Z]{16}|sk-[a-zA-Z0-9]{20,}|password\\s*=\\s*[\"'\\'']{1}[^\"'\\'']+[\"'\\'']{1})' . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=gathered"
+      }
+    ]
+  }
+}
