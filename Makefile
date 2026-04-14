@@ -3,7 +3,7 @@ RULES_DIR := $(HOME)/.claude/rules
 SKILLS := c4-analyze c4-diagram debug add-tests respond-to-review review-pr fix-issue security-check
 RULES := $(wildcard claude-rules/*.md)
 
-.PHONY: install uninstall install-hooks list
+.PHONY: install uninstall list
 
 install:
 	@mkdir -p $(SKILLS_DIR) $(RULES_DIR)
@@ -32,20 +32,6 @@ install:
 		fi \
 	done
 	@echo ""
-	@echo "done"
-
-install-hooks:
-ifndef TARGET
-	$(error Usage: make install-hooks TARGET=/path/to/project)
-endif
-	@mkdir -p $(TARGET)/.claude
-	@if [ -e "$(TARGET)/.claude/settings.json" ]; then \
-		echo "  WARN  $(TARGET)/.claude/settings.json already exists — not overwriting"; \
-		echo "        Compare with: diff $(CURDIR)/hooks/settings.json $(TARGET)/.claude/settings.json"; \
-	else \
-		cp "$(CURDIR)/hooks/settings.json" "$(TARGET)/.claude/settings.json"; \
-		echo "  copy  settings.json → $(TARGET)/.claude/settings.json"; \
-	fi
 	@echo "done"
 
 uninstall:
