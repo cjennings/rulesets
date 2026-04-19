@@ -31,9 +31,9 @@ Skills and generic rules apply to every Claude Code session on this machine.
 Copies a language-specific ruleset into a target project. Re-run to refresh.
 
 #+begin_src bash
-make install-elisp PROJECT=~/projects/my-elisp-thing
+make install-elisp PROJECT=~/code/my-elisp-thing
 # or, explicit:
-make install-lang LANG=elisp PROJECT=~/projects/my-elisp-thing
+make install-lang LANG=elisp PROJECT=~/code/my-elisp-thing
 
 make list-languages   # show available bundles
 #+end_src
