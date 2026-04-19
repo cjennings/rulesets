@@ -5,6 +5,80 @@
 Tracking TODOs for the rulesets repo that span more than one commit.
 Project-scoped (not the global =~/sync/org/roam/inbox.org= list).
 
+* TODO [#B] Build =ov-1= skill for DoDAF OV-1 (High-Level Operational Concept Graphic)
+
+Triggered by SOFWeek (May 2026, Tampa) — DeepSat attending; DoD attendees
+may ask for architecture diagrams. OV-1 is the universal informal
+currency in DoD briefings ("show me the architecture" → OV-1 by default).
+
+Priority upgrades to =[#A]= if Craig confirms scenario 2 below (personal
+load-bearing need at the event); stays =[#B]= or drops to =[#C]= if
+scenario 1 (team already covers it, future asset only).
+
+** Prior art (searched 2026-04-19)
+
+No existing Claude Code skill exists for DoDAF / OV-1 / SV-1 / SysML.
+
+- =anthropics/skills= — 17 skills, zero DoDAF/SysML/defense coverage.
+- =awesome-claude-code= list — zero hits for DoDAF/OV-1/SysML/UAF.
+- =mfsgr/sysml2dodaf= — empty repo (0 stars, no code). Vapor.
+- =HowardKao-1130/mini-NEXEN= — broad SE methodology skill that
+  name-drops DoDAF as a trigger keyword; no artifact generation. 0 stars.
+- =gaphor/gaphor= (Apache-2.0, 2.2k stars) — mature UML/SysML GUI
+  modeler. Not a skill; not a pipeline. Useful reference only.
+
+Nearest prior art to lean on when building:
+- DoDAF 2.02 Viewpoints & Models reference (dodcio.defense.gov) —
+  canonical OV-1 exemplars. Embed 3-5 layouts as skill =references/=.
+- Pattern from existing =c4-diagram= skill — same shape (prose → diagram
+  spec), swap the viewpoint vocabulary to DoDAF.
+- PlantUML for SV-1 (when that skill comes later); Mermaid or draw.io
+  XML for OV-1 lightweight visuals.
+
+** Build scope (when triggered)
+
+*In scope:*
+- Input: prose description of a system + its operational context.
+- Output: structured OV-1 *spec* — performers, external actors (other
+  systems, forces, adversaries), relationships (data/control flows),
+  narrative captions, classification marking, legend requirements.
+- DoDAF 2.02 completeness checklist as a quality gate — verify the
+  produced spec contains every element a correct OV-1 requires.
+- Optional lightweight visual: draw.io XML or Mermaid approximation for
+  quick review; NOT a finished rendering.
+
+*Out of scope:*
+- Icon libraries, pictorial assets, finished PowerPoint export. OV-1
+  final art belongs to a designer or Craig in Visio/PowerPoint; the
+  skill's job is the spec and the check, not the slide.
+- SV-1, SV-2, UAF, IDEF1X, other viewpoints. Build only when a
+  concrete need triggers each.
+
+Estimate: 4-6 hours.
+
+** Craig's investigation before kickoff
+
+1. Does DeepSat's systems-engineering or marketing team already have an
+   OV-1 (or the equivalent briefing artifact) for SOFWeek?
+2. If yes (scenario 1) — skill is a future asset, not event-load-bearing.
+   Ship after SOFWeek. Priority drops to =[#C]=.
+3. If no, or if the scenario is "Craig may need to produce/iterate an
+   OV-1 on the fly during the event" (scenario 2) — skill is load-bearing
+   for the event. Priority upgrades to =[#A]=; build before SOFWeek.
+4. Confirm the classification level the skill needs to handle
+   (unclassified-only? or FOUO markings? affects the classification
+   block in the spec).
+5. Confirm the target rendering format DeepSat uses for OV-1
+   deliverables (PowerPoint slide? Cameo? Visio? affects whether the
+   skill emits draw.io XML vs Mermaid vs pure structured spec).
+
+** Related
+
+See also the DoD-specific notations section under the later TODO
+(=c4-*= rename revisit) — OV-1 is flagged there as the highest-value
+starting point across the DoD notation landscape (SysML, DoDAF/UAF,
+IDEF1X). This entry is the execution plan for that starting point.
+
 * TODO [#A] Build =/update-skills= skill for keeping forks in sync with upstream
 
 The rulesets repo has a growing set of forks (=arch-decide= from
