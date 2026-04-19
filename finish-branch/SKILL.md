@@ -40,6 +40,8 @@ Commands vary by stack. Use what the project's Makefile, `package.json` scripts,
 
 **If verification passes:** continue to Phase 2.
 
+If any verification step fails and triggers sub-investigations, follow `subagents.md` — dispatch a fresh fix-agent per failure with pasted error context rather than retrying in the orchestrator.
+
 ## Phase 2 — Determine Base Branch
 
 The four outcomes need to know what the branch is being integrated into. Find the base:

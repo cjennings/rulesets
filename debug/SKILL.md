@@ -46,6 +46,8 @@ Do not propose any fix during this phase. You are gathering evidence.
 
 If you've attempted 3 fixes and the bug persists, stop. The problem is likely architectural, not local. Report what you've learned and recommend a broader investigation rather than attempting fix #4.
 
+When fanning out investigation across multiple independent files or subsystems, follow `subagents.md` — use parallel read-only agents for exploration, never for concurrent writes, and dispatch a fresh fix-agent on failure rather than retrying in the main context.
+
 ## What Not to Do
 
 - Don't propose fixes before completing Phase 2

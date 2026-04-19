@@ -62,6 +62,8 @@ If skipping, report: "Skipped — <reason>" and stop.
 
 Each perspective is a distinct review angle. For substantial changes, dispatch them as parallel sub-agents. For small changes, run sequentially inline.
 
+Follow `subagents.md` for the dispatch contract — each perspective's prompt needs explicit scope, pasted diff context, constraints (don't flag unmodified lines, don't rewrite the PR), and a required output format. Perspectives are read-only and independent, so parallel fan-out is always safe here.
+
 ### Perspective A — CLAUDE.md Adherence
 
 Read the CLAUDE.md files collected in Phase 1. For each rule they state, check whether the diff honors it. CLAUDE.md is writing guidance, so not every rule applies at review time — focus on rules that are *assertions about what committed code should look like*.
