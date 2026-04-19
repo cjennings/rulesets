@@ -28,7 +28,13 @@ Work through four phases in order. Do not skip phases.
 
 6. Present a test plan as a markdown table with columns: File, Functions, Current Coverage, Proposed Tests, Priority (P0/P1/P2).
 7. For each proposed test, specify: target function, category (Normal / Boundary / Error), one-line description, and any mocking required. All three categories are required per function — see `testing.md` for category definitions.
-8. **If a function has 3+ parameters with multiple values each, surface `/pairwise-tests`.** For that function, hand-writing exhaustive or even category-based cases risks either an explosion (N × M exhaustive) or under-coverage (3-5 ad-hoc tests miss pair interactions). Tell the user: "Function `<name>` has N parameters — would you rather generate a pairwise-covering matrix via `/pairwise-tests` for that function, or continue with normal `/add-tests` category coverage?" Default to continuing unless they pick pairwise. When in doubt, suggest pairwise for the combinatorial function and fall back to `/add-tests` for the rest.
+8. **Surface the coverage choice for parameter-heavy functions.** If a function has 3+ parameters with multiple values each, category-based cases (Normal/Boundary/Error per parameter individually) miss interaction bugs, while exhaustive cases explode combinatorially. Ask the user, citing specific numbers:
+
+   > "Function `<name>` has N parameters (M^N = Y exhaustive combinations). Pairwise or exhaustive?
+   > - **Pairwise** (`/pairwise-tests`): ~X cases covering every 2-way parameter interaction; catches 60-90% of combinatorial bugs.
+   > - **Exhaustive**: Y hand-written cases covering every combination; only needed in regulated / provably-complete-coverage contexts."
+
+   Pairwise is the pragmatic default. Exhaustive only when the user names a specific reason (regulatory, safety-critical, audit evidence). If the user doesn't pick explicitly, proceed with pairwise for that function and continue with category coverage for the rest.
 9. For large codebases, group the plan into batches (e.g., "Batch 1: core domain models, Batch 2: API endpoints").
 10. **Stop and ask the user for confirmation.** The user may add, remove, or reprioritize tests before you proceed. Do not write any test files until the user approves.
 
