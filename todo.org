@@ -1,0 +1,73 @@
+#+TITLE: Rulesets — Open Work
+#+AUTHOR: Craig Jennings
+#+DATE: 2026-04-19
+
+Tracking TODOs for the rulesets repo that span more than one commit.
+Project-scoped (not the global =~/sync/org/roam/inbox.org= list).
+
+* TODO [#A] Build =/update-skills= skill for keeping forks in sync with upstream
+
+The rulesets repo has a growing set of forks (=arch-decide= from
+wshobson/agents, =playwright-js= from lackeyjb/playwright-skill, =playwright-py=
+from anthropics/skills/webapp-testing). Over time, upstream releases fixes,
+new templates, or scope expansions that we'd want to pull in without losing
+our local modifications. A skill should handle this deliberately rather than
+by manual re-cloning.
+
+** Design decisions (agreed)
+
+- *Upstream tracking:* per-fork manifest =.skill-upstream= (YAML or JSON):
+  - =url= (GitHub URL)
+  - =ref= (branch or tag)
+  - =subpath= (path inside the upstream repo when it's a monorepo)
+  - =last_synced_commit= (updated on successful sync)
+- *Local modifications:* 3-way merge. Requires a pristine baseline snapshot of
+  the upstream-at-time-of-fork. Store under =.skill-upstream/baseline/= or
+  similar; committed to the rulesets repo so the merge base is reproducible.
+- *Apply changes:* skill edits files directly with per-file confirmation.
+- *Conflict policy:* git-style conflict markers (=<<<<<<<= / =>>>>>>>=) written
+  into the merged file. Emacs smerge-mode handles from there; =M-x smerge-ediff=
+  for heavier resolution. Fallback when baseline is missing/corrupt: write
+  =.local=, =.upstream=, =.baseline= files side-by-side and surface as manual
+  review.
+
+** V1 Scope
+
+- [ ] Skill at =~/code/rulesets/update-skills/=
+- [ ] Discovery: scan sibling skill dirs for =.skill-upstream= manifests
+- [ ] Helper script (bash or python) to:
+  - Clone each upstream at =ref= shallowly into =/tmp/=
+  - Compare current skill state vs latest upstream vs stored baseline
+  - Classify each file: =unchanged= / =upstream-only= / =local-only= / =both-changed=
+  - For =both-changed=: attempt =git merge-file --stdout <local> <baseline> <upstream>=;
+    write result (with conflict markers if any)
+- [ ] Per-fork summary output with file-level classification table
+- [ ] Per-file confirmation flow (yes / no / show-diff)
+- [ ] On successful sync: update =last_synced_commit= in the manifest
+- [ ] =--dry-run= to preview without writing
+
+** V2+ (deferred)
+
+- [ ] Track upstream *releases* (tags) not just branches, so skill can propose
+  "upgrade from v1.2 to v1.3" with release notes pulled in
+- [ ] Generate patch files as an alternative apply method (for users who prefer
+  =git apply= / =patch= over in-place edits)
+- [ ] Interactive per-hunk merge prompting for finer control
+- [ ] Auto-run on a schedule via Claude Code background agent
+- [ ] Summary of aggregate upstream activity across all forks (which forks have
+  upstream changes waiting, which don't)
+
+** Initial forks to enumerate (for manifest bootstrap)
+
+- [ ] =arch-decide= → =wshobson/agents= :: =plugins/documentation-generation/skills/architecture-decision-records= :: MIT
+- [ ] =playwright-js= → =lackeyjb/playwright-skill= :: =skills/playwright-skill= :: MIT
+- [ ] =playwright-py= → =anthropics/skills= :: =skills/webapp-testing= :: Apache-2.0
+
+** Open questions
+
+- [ ] What happens when upstream *renames* a file we fork? Skill would see
+  "file gone from upstream, still present locally" — drop, keep, or prompt?
+- [ ] What happens when upstream splits into multiple forks (e.g., a plugin
+  reshuffles its structure)? Probably out of scope for v1; manual migration.
+- [ ] Rate-limit / offline mode: if GitHub is unreachable, should skill fail
+  or degrade gracefully? Likely degrade; print warning per fork.
