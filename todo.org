@@ -181,3 +181,45 @@ discard and stick with hand briefing.
   Trendshift promo, branded badges) — license might shift later; watch
 - Companion =skill-seekers-configs= community repo has only 8 stars
   despite main's 12.9k — ecosystem thinner than headline adoption
+
+* TODO [#C] Revisit =c4-*= rename if a second notation skill ships
+
+Current naming keeps =c4-analyze= and =c4-diagram= as-is (framework prefix
+encodes the notation; "C4" is a discoverable brand). Suite membership is
+surfaced via the description footer, not the name.
+
+If a second notation-specific skill ever lands (=uml-*=, =erd-*=, =arc42-*=),
+the compound pattern =arch-analyze-<notation>= / =arch-diagram-<notation>=
+starts paying off: alphabetical clustering under 'a' amortizes across three+
+skills, and the hierarchy becomes regular. At that point, rename all
+notation skills together in one pass.
+
+Trigger: adding skill #2 in the notation family. Don't pre-rename.
+
+Candidate future notation skills (not yet in scope — noted for when a
+real need arrives, not pre-emptively):
+
+- *UML* (Unified Modeling Language): OO design notation, 14 diagram types
+  in practice dominated by class / sequence / state / component. Common
+  in DoD / safety-critical / enterprise-architecture contexts. Tooling:
+  PlantUML (text-to-diagram), Mermaid UML, draw.io. Would likely split
+  into =uml-class=, =uml-sequence=, =uml-state= rather than one monolith
+  — different audiences, different inputs.
+- *ERD* (Entity-Relationship Diagram): database schema modeling —
+  entities, attributes, cardinality. Crow's Foot notation dominates
+  practice; Chen is academic; IDEF1X is DoD-standard. Tooling:
+  dbdiagram.io, Mermaid ERD, PlantUML, ERAlchemy (code-to-ERD for SQL).
+  Natural fit as =erd-analyze= (extract from schema/migrations) and
+  =erd-diagram= (generate from prose/model definitions).
+- *arc42*: already partially covered by =arch-document= (which emits
+  arc42-structured docs). A standalone =arc42-*= skill would be
+  redundant unless the arc42-specific visualizations need separation.
+
+Each answers a different question:
+
+- C4 → "What systems exist and how do they talk, at what zoom?"
+- UML class/sequence → "What does the code look like / what happens when X runs?"
+- ERD → "What's the database shape?"
+- arc42 → "What's the full architecture document?"
+
+Deferred pending an actual need that's blocked on not having one of these.
