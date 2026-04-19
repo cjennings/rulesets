@@ -1,0 +1,254 @@
+#+TITLE: Architecture Suite — v2+ TODO
+#+AUTHOR: Craig Jennings
+#+DATE: 2026-04-19
+
+Deferred work for the arch-* skill chain. v1 ships with the four core skills
+and opportunistic linter integration. Items here extend capability,
+precision, or scope and were intentionally deferred.
+
+* About
+
+Each item lists motivation, scope, and the skill(s) it touches. Priority hints
+(=[#A/B/C]=) reflect rough judgement, not firm commitment. Rearrange freely.
+
+Related: [[file:README.md][README.md]] for the v1 architecture suite overview.
+
+* v2 Candidates
+
+** TODO [#A] Auto-generate linter configs from the brief                    :arch-evaluate:
+SCHEDULED: <2026-05-15 Fri>
+
+Today the user hand-writes =.importlinter= / =.dependency-cruiser.cjs= / =.golangci.yml=
+from the brief's declared layers. The skill should be able to emit a starter
+config for the detected language.
+
+*** Scope
+- Parse layers section of =.architecture/brief.md=
+- Emit minimal config matching declared structure
+- Place in repo with =--dry-run= mode to preview
+- Never overwrite an existing config without =--force=
+
+*** Complication
+- Each tool has different semantics (forbidden vs layer-based vs import rules)
+- Mapping from "paradigm + layers" to tool-specific rules has edge cases
+- Want to avoid generating wrong/incomplete rules that mislead users
+
+*** Touches
+- =arch-evaluate= (config generation)
+- =arch-design= (formalize the layers syntax in the brief)
+
+** TODO [#A] CI mode: exit codes and --fail-on                                :arch-evaluate:
+
+Today the skill produces a markdown report. For CI, need machine-readable
+output and non-zero exit on violations.
+
+*** Scope
+- =--output json=: structured findings for parsing
+- Exit code: 0 (no errors), 1 (errors present), 2 (tool failures)
+- =--fail-on=warning= flag for strict mode
+- =--delta-since=<git-ref>=: only report findings introduced since that ref
+
+*** Touches
+- =arch-evaluate= only
+
+** TODO [#A] ArchUnit integration (Java)                                     :arch-evaluate:
+
+Java architectural linting happens via ArchUnit, which runs as JUnit tests.
+The skill needs to know how to invoke it and parse its output.
+
+*** Scope
+- Detect =archunit-junit5= dependency in =pom.xml= / =build.gradle=
+- Invoke via =mvn test -Dtest=*ArchTest*= or =gradle test --tests *ArchTest=
+- Parse JUnit XML or surefire reports for failures
+- Map to unified finding format
+
+*** Complication
+- ArchUnit requires someone to have written the rule classes
+- Skill could also suggest generating rule tests from the brief (overlap with auto-gen task above)
+
+*** Touches
+- =arch-evaluate= (invocation + parsing)
+
+** TODO [#B] include-what-you-use / cpp-linter integration (C/C++)           :arch-evaluate:
+
+C and C++ have weaker architectural linting options than the dynamic
+languages. =include-what-you-use= is the main tool; needs CMake integration
+to run usefully.
+
+*** Scope
+- Detect =.iwyu.imp= or CMake option =CMAKE_CXX_INCLUDE_WHAT_YOU_USE=
+- Run a build with IWYU enabled, collect output
+- Parse and report
+
+*** Complication
+- Requires a full build (slow)
+- Output is verbose; much is noise (re-sorting includes vs. real violations)
+- May need a user-provided mapping file for vendored deps
+
+*** Touches
+- =arch-evaluate= (invocation + parsing)
+
+** TODO [#B] DDD aggregate boundary checks                                   :arch-evaluate:
+
+When the brief declares DDD tactical patterns (aggregates, repositories,
+domain events), check that code respects the boundaries: aggregates only
+referenced via their root, repositories only for aggregate roots, events not
+crossing bounded contexts directly.
+
+*** Scope
+- Extend brief syntax to declare aggregates + bounded contexts
+- Framework-agnostic check: aggregate internals only accessed via root path
+- Framework-agnostic check: repositories match declared aggregate roots 1:1
+- Flag direct cross-aggregate references
+
+*** Complication
+- DDD is heterogeneous in practice — no single canonical structure
+- Risk of being too prescriptive
+
+*** Touches
+- =arch-design= (formalize DDD declaration in brief)
+- =arch-evaluate= (checks)
+
+** TODO [#B] Auto-detect declared architecture from existing code            :arch-design:
+
+For retroactive briefs: instead of asking the user to describe their
+existing architecture, infer a likely layering from import patterns, propose
+it, and let the user confirm/edit.
+
+*** Scope
+- Dispatch to =c4-analyze= for module graph
+- Cluster modules into implied layers using dep direction + naming
+- Propose: "Looks like these layers: presentation → application → domain → infrastructure. Confirm or edit."
+- Save confirmed layering to brief §7
+
+*** Complication
+- Inference can mislead — mixed codebases produce bad clusters
+- Requires code organization that isn't already chaotic to work well
+
+*** Touches
+- =arch-design= only
+
+** TODO [#B] ADR ⇄ brief cross-referencing                                  :arch-decide:
+
+Currently the brief links to "ADRs TBD" and ADRs don't link back. Bidirectional
+linking improves navigation and ensures the brief stays current.
+
+*** Scope
+- =arch-decide= adds a "Brief section" field to new ADRs
+- When an ADR is accepted, update brief §8 (Open Decisions) to check the box and link
+- =arch-document= §9 generates a cross-reference table
+
+*** Touches
+- =arch-decide= (write-back to brief)
+- =arch-document= (index table)
+
+** TODO [#B] Visual dependency graph output                                  :arch-evaluate:
+
+Beyond text report, emit a visual graph of cycles and layer violations.
+
+*** Scope
+- Graphviz / mermaid output with violating edges highlighted in red
+- Optional per-layer coloring
+- Link to SVG/PNG from the markdown report
+
+*** Touches
+- =arch-evaluate= (output rendering)
+
+** TODO [#C] Expanded paradigm library                                       :arch-design:
+
+Add more paradigm entries to the candidate-considered table in arch-design:
+CQRS+Event-Sourcing combined, saga orchestration, choreography, CRDTs,
+space-based, reactive, etc.
+
+*** Complication
+- More options isn't always better — risk of analysis paralysis
+- Must keep trade-off analysis honest per paradigm
+
+*** Touches
+- =arch-design= only
+
+** TODO [#C] Quality attribute scenario generator                            :arch-design:
+
+Given a top-ranked quality attribute ("performance"), generate concrete
+testable scenarios in the format: "Under X, the system should Y within Z."
+
+*** Scope
+- Scenario template per attribute class
+- Measurable by default; flag vague ones for the user
+
+*** Touches
+- =arch-design= (optional phase 2.5)
+
+** TODO [#C] Support for non-arc42 documentation formats                     :arch-document:
+
+Some teams prefer C4-only, ISO/IEC 42010 terminology, or a lighter 4+1 views
+format. Add alternate templates.
+
+*** Scope
+- Selectable =--format= in =arch-document=: arc42 (default), c4-only, 4+1, minimal
+- Each format maps a subset of content
+
+*** Complication
+- Duplicates effort; arc42 is already comprehensive
+- May mean maintaining parallel templates
+
+*** Touches
+- =arch-document= only
+
+** TODO [#C] PlantUML / Structurizr output                                   :arch-document:
+
+Generate text-based architecture DSLs (PlantUML C4, Structurizr DSL) from the
+decomposition, for teams that prefer those toolchains.
+
+*** Scope
+- Output option in =arch-document=: emit structurizr or plantuml alongside markdown
+
+*** Touches
+- =arch-document= (via c4-* dispatch)
+
+** TODO [#C] ATAM-style trade-off analysis                                   :arch-design:
+
+For complex decisions, enable a deeper Architecture Trade-off Analysis
+Method pass: identify sensitivity points, trade-off points, risks per
+paradigm option.
+
+*** Complication
+- ATAM is heavy; not appropriate for most projects
+- Optional mode; don't make it default
+
+*** Touches
+- =arch-design= (optional deep-dive)
+
+** TODO [#C] Interactive mode                                                :arch-design:
+
+Instead of one-shot Q&A, walk the user through each phase as a guided
+conversation with branching based on answers.
+
+*** Complication
+- Hard to make conversational in a skill context
+- Probably belongs as a slash command workflow, not a skill
+
+*** Touches
+- =arch-design= (or a new =/arch-wizard= command)
+
+* Won't-Do
+
+** DONE Auto-implementation of architecture
+
+Generating code from a brief would sound appealing but crosses into tooling
+that's inherently scoped to a language/framework. Out of scope for an
+architectural skill suite. Leave to project-specific generators.
+
+** DONE Real-time collaboration
+
+These skills operate on filesystem artifacts (brief, ADRs, arc42 docs).
+Concurrent editing is git's problem, not the skills'.
+
+* Notes
+
+- Tag entries with the skill(s) they affect (=:arch-design:=, =:arch-decide:=,
+  =:arch-document:=, =:arch-evaluate:=) so you can filter.
+- Priority A items are what would most improve v1 for Craig's current stack
+  (Python / TS / Go).
+- Java and C/C++ integration (ArchUnit, IWYU) is A-priority when Craig starts
+  using those languages, B otherwise.
