@@ -64,6 +64,8 @@ deps: ## Install required tools (claude, node, jq, fzf, ripgrep, emacs, playwrig
 		{ echo "  ripgrep:    installing..."; $(call install_pkg,ripgrep); }
 	@command -v emacs >/dev/null 2>&1 && echo "  emacs:      installed" || \
 		{ echo "  emacs:      installing..."; $(call install_pkg,emacs); }
+	@command -v uv >/dev/null 2>&1 && echo "  uv:         installed ($$(uv --version | awk '{print $$NF}'))" || \
+		{ echo "  uv:         installing..."; $(call install_pkg,uv); }
 	@if [ -d "$(CURDIR)/playwright-js" ]; then \
 		if [ -d "$(CURDIR)/playwright-js/node_modules/playwright" ]; then \
 			echo "  playwright (js):  installed (skill node_modules present)"; \
@@ -75,13 +77,17 @@ deps: ## Install required tools (claude, node, jq, fzf, ripgrep, emacs, playwrig
 		echo "  playwright (js):  skipped (playwright-js/ not present)"; \
 	fi
 	@if [ -d "$(CURDIR)/playwright-py" ]; then \
-		if python3 -c "import playwright" >/dev/null 2>&1; then \
-			echo "  playwright (py):  installed (python package importable)"; \
+		if command -v playwright >/dev/null 2>&1; then \
+			echo "  playwright (py):  CLI installed ($$(playwright --version 2>&1 | head -1))"; \
+		elif command -v uv >/dev/null 2>&1; then \
+			echo "  playwright (py):  installing via uv tool (isolated venv)..."; \
+			uv tool install playwright; \
+			echo "                    (Chromium already cached by playwright-js step; no re-download.)"; \
 		else \
-			echo "  playwright (py):  installing via pip --user..."; \
-			python3 -m pip install --user playwright && \
-			python3 -m playwright install chromium; \
-		fi \
+			echo "  playwright (py):  skipped — install uv, then re-run 'make deps'."; \
+		fi; \
+		echo "                    Per-project library import: add 'playwright' to your project's venv"; \
+		echo "                    (e.g. 'uv add playwright' or 'pip install playwright' inside .venv)."; \
 	else \
 		echo "  playwright (py):  skipped (playwright-py/ not present)"; \
 	fi

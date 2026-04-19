@@ -1,0 +1,14 @@
+# Node artifacts
+**/node_modules/
+**/package-lock.json
+
+# Python artifacts
+**/__pycache__/
+**/*.pyc
+**/.venv/
+**/.pytest_cache/
+
+# OS / editor
+.DS_Store
+*.swp
+*~
