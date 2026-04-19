@@ -223,3 +223,104 @@ Each answers a different question:
 - arc42 → "What's the full architecture document?"
 
 Deferred pending an actual need that's blocked on not having one of these.
+
+** DoD-specific notations (DeepSat context)
+
+Defense-contractor work uses a narrower, different notation set than
+commercial software. Document the trigger conditions and starting point
+so a future decision to build doesn't have to re-derive the landscape.
+
+*** SysML (Systems Modeling Language)
+
+UML 2 profile, dominant in DoD systems engineering. Six diagrams account
+for ~all practical use:
+
+- *Block Definition Diagram (BDD)* — structural; like UML class but for
+  system blocks (components, subsystems, hardware).
+- *Internal Block Diagram (IBD)* — parts within a block and how they
+  connect (flow ports, interfaces).
+- *Requirement diagram* — unique to SysML; traces requirements to
+  satisfying blocks. Essential in regulated environments.
+- *Activity diagram* — behavioral flow.
+- *State machine* — same shape as UML.
+- *Sequence diagram* — same shape as UML.
+
+SysML v1.x is in the field; v2 is emerging but not yet adopted at scale
+(as of 2026-04). Tooling dominated by Cameo Systems Modeler / MagicDraw
+and Enterprise Architect. Text-based option: PlantUML + =plantuml-sysml=
+(git-friendly, growing niche).
+
+*Candidate skills*: =sysml-bdd=, =sysml-ibd=, =sysml-requirement=,
+=sysml-sequence=. Three or more in this cluster triggers the
+=arch-*-<notation>= rename discussion from the parent entry.
+
+*** DoDAF / UAF (architecture frameworks)
+
+Not notations themselves — frameworks that specify *which* viewpoints a
+program must deliver. Viewpoints are rendered using UML/SysML diagrams.
+
+- *DoDAF (DoD Architecture Framework)* — legacy but still
+  contract-required on many programs.
+- *UAF (Unified Architecture Framework)* — DoDAF/MODAF successor,
+  SysML-based. Gaining adoption on newer contracts.
+
+Common required viewpoints (formal CDRL deliverables or PDR/CDR
+review packages):
+
+- *OV-1* — High-Level Operational Concept Graphic. The "cartoon" showing
+  the system in operational context with icons, arrows, surrounding
+  actors/environment. *Universally asked for — informal or formal.*
+  Starting point for any DoD diagram skill.
+- *OV-2* — Operational resource flows (nodes and flows).
+- *OV-5a/b* — Operational activities.
+- *SV-1* — Systems interfaces. Maps closely to C4 Container.
+- *SV-2* — Systems resource flows.
+- *SV-4* — Systems functionality.
+- *SV-10b* — Systems state transitions.
+
+*Informal ask ("send me an architecture diagram") → OV-1 + SV-1 satisfies
+90% of the time.* Formal CDRL asks specify the viewpoint set contractually.
+
+*C4 gap*: C4 is rare in DoD. C4 System Context ≈ OV-1 in intent but not
+in visual convention. C4 Container ≈ SV-1. Expect a mapping step or
+reviewer pushback if delivering C4-shaped artifacts to a DoD audience.
+
+*Candidate skills*: =dodaf-ov1=, =dodaf-sv1= first (highest-value);
+=uaf-viewpoint= if newer contracts require UAF.
+
+*** IDEF1X (data modeling)
+
+FIPS 184 — federal standard for data modeling. Used in classified DoD
+data systems, intelligence databases, and anywhere the government
+specifies the data model. Same shape language as Crow's Foot but with
+different adornments and notation conventions.
+
+*Rule of thumb*: classified DoD data work → IDEF1X; unclassified
+contractor work → Crow's Foot unless the contract specifies otherwise.
+
+*Candidate skills*: =idef1x-diagram= / =idef1x-analyze= (parallel to a
+future =erd-diagram= / =erd-analyze= pair).
+
+*** Tooling baseline
+
+- *Cameo Systems Modeler / MagicDraw* (Dassault) — commercial SysML
+  dominant in DoD programs.
+- *Enterprise Architect (Sparx)* — widely used for UML + SysML + DoDAF.
+- *Rhapsody (IBM)* — SysML with code generation; strong in avionics /
+  embedded (FACE, ARINC).
+- *Papyrus (Eclipse)* — open source SysML; free but clunkier.
+- *PlantUML + plantuml-sysml* — text-based, version-controllable. Fits a
+  git-centric workflow better than any GUI tool.
+
+*** Highest-value starting point
+
+If DeepSat contracts regularly require architecture deliverables, the
+highest-ROI first skill is =dodaf-ov1= (or whatever naming convention
+the rename discussion lands on). OV-1 is the universal currency in
+briefings, proposals, and reviews; it's the one artifact that shows up
+in every program regardless of contract specifics.
+
+Trigger for building: an actual DoD deliverable that's blocked on not
+having a skill to generate or check OV-1-shaped artifacts. Don't build
+speculatively — defense-specific notations are narrow enough that each
+skill should be driven by a concrete contract need, not aspiration.
