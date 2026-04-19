@@ -44,12 +44,13 @@ case "$f" in
 esac
 
 # --- Phase 2: test runner ---
-# Determine which tests (if any) apply to this edit.
+# Determine which tests (if any) apply to this edit. Works for projects with
+# source at root, in modules/, or elsewhere — stem-based test lookup is the
+# common pattern.
 tests=()
 case "$f" in
-  "$PROJECT_ROOT/modules/"*.el)
-    stem="$(basename "${f%.el}")"
-    mapfile -t tests < <(find "$PROJECT_ROOT/tests" -maxdepth 1 -name "test-${stem}*.el" 2>/dev/null | sort)
+  */init.el|*/early-init.el)
+    : # Phase 1 handled it; skip test runner
     ;;
   "$PROJECT_ROOT/tests/testutil-"*.el)
     stem="$(basename "${f%.el}")"
@@ -58,6 +59,11 @@ case "$f" in
     ;;
   "$PROJECT_ROOT/tests/test-"*.el)
     tests=("$f")
+    ;;
+  *.el)
+    # Any other .el under the project — find matching tests by stem
+    stem="$(basename "${f%.el}")"
+    mapfile -t tests < <(find "$PROJECT_ROOT/tests" -maxdepth 1 -name "test-${stem}*.el" 2>/dev/null | sort)
     ;;
 esac
 
