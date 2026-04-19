@@ -1,0 +1,86 @@
+#+TITLE: Rulesets
+#+AUTHOR: Craig Jennings
+
+Claude Code skills, rules, and per-language project bundles.
+
+* Layout
+
+| Directory       | Purpose                                                          |
+|-----------------+------------------------------------------------------------------|
+| =claude-rules/= | Generic rules symlinked into =~/.claude/rules/= (apply globally) |
+| =<skill>/=      | Skill directories symlinked into =~/.claude/skills/=             |
+| =languages/=    | Per-language project bundles (rules + hooks + settings)          |
+| =scripts/=      | Install helpers                                                  |
+
+* Two install modes
+
+** Global (machine-wide)
+
+Symlinks skills and generic rules into =~/.claude/=. Run once per machine.
+
+#+begin_src bash
+make install       # symlink skills and rules into ~/.claude/
+make uninstall     # remove the symlinks
+make list          # show what's installed
+#+end_src
+
+Skills and generic rules apply to every Claude Code session on this machine.
+
+** Per-project language bundles
+
+Copies a language-specific ruleset into a target project. Re-run to refresh.
+
+#+begin_src bash
+make install-elisp PROJECT=~/projects/my-elisp-thing
+# or, explicit:
+make install-lang LANG=elisp PROJECT=~/projects/my-elisp-thing
+
+make list-languages   # show available bundles
+#+end_src
+
+What gets installed:
+- =.claude/rules/*.md= — project-scoped rules (language-specific + verification)
+- =.claude/hooks/= — PostToolUse validation scripts
+- =.claude/settings.json= — permission allowlist + hook wiring
+- =githooks/= — git hooks (activated via =core.hooksPath=)
+- =CLAUDE.md= — seeded on first install only (use =FORCE=1= to overwrite)
+- =.gitignore= — appends personal-override entries (deduped)
+
+The install is re-runnable. Running it again refreshes files in place; personal
+tweaks live in =.claude/settings.local.json= and are not touched.
+
+* Available languages
+
+| Language | Path             | Notes                                        |
+|----------+------------------+----------------------------------------------|
+| elisp    | =languages/elisp/= | Emacs Lisp — ERT, check-parens, byte-compile |
+
+Add more by creating =languages/<name>/= with the same structure.
+
+* Bundle structure
+
+Each language bundle under =languages/<lang>/= follows:
+
+#+begin_example
+languages/<lang>/
+├── CLAUDE.md              # project instructions template (seed only)
+├── claude/                # copied into <project>/.claude/
+│   ├── rules/*.md
+│   ├── hooks/*.sh
+│   └── settings.json
+├── githooks/              # copied into <project>/githooks/
+│   └── pre-commit
+└── gitignore-add.txt      # lines appended to <project>/.gitignore
+#+end_example
+
+* Design principles
+
+- *Authoritative source*: =.claude/= and =githooks/= overwrite on every install.
+  If you edit them in-project, your changes will be lost on next install. Put
+  per-project customizations in =.claude/settings.local.json= (gitignored) or
+  project-specific files outside =.claude/=.
+- *CLAUDE.md is precious*: it's the one file with project-specific prose, so
+  install never overwrites it unless =FORCE=1=.
+- *Portable paths*: hooks use =$CLAUDE_PROJECT_DIR= (Claude Code sets it) with
+  a script-relative fallback. No hardcoded usernames or paths.
+- *Idempotent*: re-running install is always safe. No state beyond file contents.

@@ -1,0 +1,3 @@
+# Claude Code — personal overrides (not part of the ruleset)
+/.claude/settings.local.json
+/.claude/.cache/
