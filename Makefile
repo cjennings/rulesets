@@ -1,31 +1,67 @@
+.DEFAULT_GOAL := help
+SHELL := /bin/bash
+
 SKILLS_DIR := $(HOME)/.claude/skills
-RULES_DIR := $(HOME)/.claude/rules
-SKILLS := c4-analyze c4-diagram debug add-tests respond-to-review review-pr fix-issue security-check
-RULES := $(wildcard claude-rules/*.md)
-LANGUAGES := $(notdir $(wildcard languages/*))
+RULES_DIR  := $(HOME)/.claude/rules
+SKILLS     := c4-analyze c4-diagram debug add-tests respond-to-review review-pr fix-issue security-check
+RULES      := $(wildcard claude-rules/*.md)
+LANGUAGES  := $(notdir $(wildcard languages/*))
+
+# Pick target project — use PROJECT= or interactive fzf over local .git dirs.
+# Defined inline in each recipe (not via $(shell)) so fzf only runs when needed.
+define pick_project_shell
+	P="$(PROJECT)"; \
+	if [ -z "$$P" ]; then \
+		if ! command -v fzf >/dev/null 2>&1; then \
+			echo "ERROR: PROJECT=<path> not set and fzf is not installed" >&2; \
+			exit 1; \
+		fi; \
+		P=$$(find $$HOME -maxdepth 4 -name .git -type d 2>/dev/null \
+			| sed 's|/\.git$$||' | sort \
+			| fzf --prompt="Target project> " 2>/dev/null); \
+		test -n "$$P" || { echo "No target selected." >&2; exit 1; }; \
+	fi
+endef
+
+# Cross-platform package install helper (brew/apt/pacman)
+define install_pkg
+$(if $(shell command -v brew 2>/dev/null),brew install $(1),\
+$(if $(shell command -v apt-get 2>/dev/null),sudo apt-get install -y $(1),\
+$(if $(shell command -v pacman 2>/dev/null),sudo pacman -S --noconfirm $(1),\
+$(error No supported package manager found (brew/apt-get/pacman)))))
+endef
 
 .PHONY: help install uninstall list \
-        install-lang list-languages install-elisp install-python
+        install-lang install-elisp install-python list-languages \
+        diff lint deps
 
-help:
-	@echo "rulesets — Claude Code skills, rules, and language bundles"
-	@echo ""
-	@echo "  Global install (symlinks into ~/.claude/):"
-	@echo "    make install             - Install skills and rules globally"
-	@echo "    make uninstall           - Remove the symlinks"
-	@echo "    make list                - Show install status"
-	@echo ""
-	@echo "  Per-project language rulesets:"
-	@echo "    make install-lang LANG=<lang> PROJECT=<path> [FORCE=1]"
-	@echo "    make install-elisp PROJECT=<path> [FORCE=1]   (shortcut)"
-	@echo "    make install-python PROJECT=<path> [FORCE=1]  (shortcut)"
-	@echo "    make list-languages     - Show available language bundles"
-	@echo ""
-	@echo "  FORCE=1 overwrites an existing CLAUDE.md (other files always overwrite)."
-	@echo ""
-	@echo "Available languages: $(LANGUAGES)"
+##@ General
 
-install:
+help: ## Show this help
+	@awk 'BEGIN {FS = ":.*##"; printf "\nrulesets — Claude Code skills, rules, and language bundles\n\nUsage: make \033[36m<target>\033[0m [PROJECT=<path>] [LANG=<lang>] [FORCE=1]\n"} \
+		/^[a-zA-Z_-]+:.*##/ { printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2 } \
+		/^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) }' $(MAKEFILE_LIST)
+	@printf "\nAvailable languages: %s\n" "$(LANGUAGES)"
+
+##@ Dependencies
+
+deps: ## Install required tools (claude, jq, fzf, ripgrep, emacs)
+	@echo "Checking dependencies..."
+	@command -v claude >/dev/null 2>&1 && echo "  claude:  installed" || \
+		{ echo "  claude:  installing via npm..."; npm install -g @anthropic-ai/claude-code; }
+	@command -v jq >/dev/null 2>&1 && echo "  jq:      installed" || \
+		{ echo "  jq:      installing..."; $(call install_pkg,jq); }
+	@command -v fzf >/dev/null 2>&1 && echo "  fzf:     installed" || \
+		{ echo "  fzf:     installing..."; $(call install_pkg,fzf); }
+	@command -v rg >/dev/null 2>&1 && echo "  ripgrep: installed" || \
+		{ echo "  ripgrep: installing..."; $(call install_pkg,ripgrep); }
+	@command -v emacs >/dev/null 2>&1 && echo "  emacs:   installed" || \
+		{ echo "  emacs:   installing..."; $(call install_pkg,emacs); }
+	@echo "Done."
+
+##@ Global install (symlinks into ~/.claude/)
+
+install: ## Symlink skills and rules into ~/.claude/
 	@mkdir -p $(SKILLS_DIR) $(RULES_DIR)
 	@echo "Skills:"
 	@for skill in $(SKILLS); do \
@@ -54,7 +90,7 @@ install:
 	@echo ""
 	@echo "done"
 
-uninstall:
+uninstall: ## Remove global symlinks from ~/.claude/
 	@echo "Skills:"
 	@for skill in $(SKILLS); do \
 		if [ -L "$(SKILLS_DIR)/$$skill" ]; then \
@@ -78,7 +114,7 @@ uninstall:
 	@echo ""
 	@echo "done"
 
-list:
+list: ## Show global install status
 	@echo "Skills:"
 	@for skill in $(SKILLS); do \
 		if [ -L "$(SKILLS_DIR)/$$skill" ]; then \
@@ -98,19 +134,29 @@ list:
 		fi \
 	done
 
-# --- Per-project language rulesets ---
+##@ Per-project language bundles
 
-list-languages:
+list-languages: ## List available language bundles
 	@echo "Available language rulesets (languages/):"
 	@for lang in $(LANGUAGES); do echo "  - $$lang"; done
 
-install-lang:
-	@test -n "$(LANG)"    || { echo "ERROR: set LANG=<language> (try: make list-languages)"; exit 1; }
-	@test -n "$(PROJECT)" || { echo "ERROR: set PROJECT=<path>"; exit 1; }
-	@bash scripts/install-lang.sh "$(LANG)" "$(PROJECT)" "$(FORCE)"
+install-lang: ## Install language ruleset (LANG=<lang> [PROJECT=<path>] [FORCE=1])
+	@test -n "$(LANG)" || { echo "ERROR: set LANG=<language>"; exit 1; }
+	@$(pick_project_shell); \
+	bash scripts/install-lang.sh "$(LANG)" "$$P" "$(FORCE)"
 
-install-elisp:
+install-elisp: ## Install Elisp bundle ([PROJECT=<path>] [FORCE=1])
 	@$(MAKE) install-lang LANG=elisp PROJECT="$(PROJECT)" FORCE="$(FORCE)"
 
-install-python:
+install-python: ## Install Python bundle ([PROJECT=<path>] [FORCE=1])
 	@$(MAKE) install-lang LANG=python PROJECT="$(PROJECT)" FORCE="$(FORCE)"
+
+##@ Compare & validate
+
+diff: ## Show drift between installed ruleset and repo source (LANG=<lang> [PROJECT=<path>])
+	@test -n "$(LANG)" || { echo "ERROR: set LANG=<language>"; exit 1; }
+	@$(pick_project_shell); \
+	bash scripts/diff-lang.sh "$(LANG)" "$$P"
+
+lint: ## Validate ruleset structure (headings, Applies-to, shebangs, exec bits)
+	@bash scripts/lint.sh
