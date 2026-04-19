@@ -81,3 +81,48 @@ by manual re-cloning.
   reshuffles its structure)? Probably out of scope for v1; manual migration.
 - [ ] Rate-limit / offline mode: if GitHub is unreachable, should skill fail
   or degrade gracefully? Likely degrade; print warning per fork.
+
+* TODO [#C] Try Skill Seekers on a real DeepSat docs-briefing need
+SCHEDULED: <2026-05-15 Fri>
+
+=Skill Seekers= ([[https://github.com/yusufkaraaslan/Skill_Seekers]]) is a Python
+CLI + MCP server that ingests 18 source types (docs sites, PDFs, GitHub
+repos, YouTube videos, Confluence, Notion, OpenAPI specs, etc.) and
+exports to 20+ AI targets including Claude skills. MIT licensed, 12.9k
+stars, active as of 2026-04-12.
+
+*Evaluated: 2026-04-19 — not adopted for rulesets.* Generates
+*reference-style* skills (encyclopedic dumps of scraped source material),
+not *operational* skills (opinionated how-we-do-things content). Doesn't
+fit the rulesets curation pattern.
+
+*Next-trigger experiment (this TODO):* the next time a DeepSat task needs
+Claude briefed deeply on a specific library, API, or docs site — try:
+#+begin_src bash
+pip install skill-seekers
+skill-seekers create <url> --target claude
+#+end_src
+Measure output quality vs hand-curated briefing. If usable, consider
+installing as a persistent tool. If output is bloated / under-structured,
+discard and stick with hand briefing.
+
+*Candidate first experiments (pick one from an actual need, don't invent):*
+- A Django ORM reference skill scoped to the version DeepSat pins
+- An OpenAPI-to-skill conversion for a partner-vendor API
+- A React hooks reference skill for the frontend team's current patterns
+- A specific AWS service's docs (e.g. GovCloud-flavored)
+
+*Patterns worth borrowing into rulesets even without adopting the tool:*
+- Enhancement-via-agent pipeline (scrape raw → LLM pass → structured
+  SKILL.md). Applicable if we ever build internal-docs-to-skill tooling.
+- Multi-target export abstraction (one knowledge extraction → many output
+  formats). Clean design for any future multi-AI-tool workflow.
+
+*Concerns to verify on actual use:*
+- =LICENSE= has an unfilled =[Your Name/Username]= placeholder (MIT is
+  unambiguous, but sloppy for a 12k-star project)
+- Default branch is =development=, not =main= — pin with care
+- Heavy commercialization signals (website at skillseekersweb.com,
+  Trendshift promo, branded badges) — license might shift later; watch
+- Companion =skill-seekers-configs= community repo has only 8 stars
+  despite main's 12.9k — ecosystem thinner than headline adoption
