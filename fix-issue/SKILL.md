@@ -1,3 +1,8 @@
+---
+name: fix-issue
+description: Ticket-driven implementation workflow — fetch issue details from the tracker (Linear / GitHub Issues / Jira), create a branch, implement against acceptance criteria with tests, and commit/push. Reads the issue, verifies the delivery matches intent, handles the full branch lifecycle. Use when you have an issue ID or a well-scoped task ready to implement. Do NOT use for open-ended bug investigation without a clear fix path (use debug first), for tracing an error through a long call stack to its origin (use root-cause-trace), for small unticketed edits (just do them), or when requirements aren't yet clear (use brainstorm or arch-design). Companion to debug — fix-issue is the workflow scaffold around implementing a known fix; debug is the upstream investigative phase.
+---
+
 # /fix-issue — Pick Up and Implement an Issue
 
 Create a branch, implement the fix, test, and commit.

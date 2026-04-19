@@ -1,3 +1,8 @@
+---
+name: debug
+description: Investigate a bug or test failure methodically through four phases — understand the symptom (reproduce, read logs, locate failure point, trace data flow), isolate variables (minimal repro, bisect), form and test hypotheses, then fix at the root. Captures evidence before proposing fixes; rejects shotgun debugging; escalates to architectural investigation after three failed fix attempts. Use when the failure mode is unclear, the failure reproduces inconsistently, or you're about to start guessing. Do NOT use for clear local bugs where the fix site is obvious (just fix it), for ticket-driven implementation work with a known fix (use fix-issue), for backward-walking a specific error up the call stack (use root-cause-trace), or for process/organizational root-cause analysis of recurring incidents (use five-whys). Companion to fix-issue / root-cause-trace / five-whys — debug is the broad investigative workflow; the others specialize.
+---
+
 # /debug — Systematic Debugging
 
 Investigate a bug or test failure methodically. No guessing, no shotgun fixes.

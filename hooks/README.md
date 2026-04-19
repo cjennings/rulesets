@@ -9,6 +9,7 @@ Machine-wide Claude Code hooks that install into `~/.claude/hooks/` and apply to
 | `precompact-priorities.sh` | `PreCompact` | Injects a priority-preservation block into Claude's compaction prompt so the generated summary retains information most expensive to reconstruct (unanswered questions, root causes with `file:line`, subagent findings, exact numbers/IDs, A-vs-B decisions, open TODOs, classified-data handling). |
 | `git-commit-confirm.py` | `PreToolUse(Bash)` | Gates `git commit` behind a confirmation modal showing the parsed message, staged files, diff stats, and git author. Parses both HEREDOC and `-m`/`--message` forms. |
 | `gh-pr-create-confirm.py` | `PreToolUse(Bash)` | Gates `gh pr create` behind a confirmation modal showing title, base←head, reviewers, labels, assignees, milestone, draft flag, and body (HEREDOC or quoted). |
+| `destructive-bash-confirm.py` | `PreToolUse(Bash)` | Gates destructive commands (`git push --force`, `git reset --hard`, `git clean -f`, `git branch -D`, `rm -rf`) with a modal showing the command, local context (branch, uncommitted file counts, targeted paths), and a warning banner. Elevates severity when force-pushing protected branches or targeting root/home/wildcard paths. |
 
 Shared library (not a hook): `_common.py` — `read_payload()`, `respond_ask()`, `scan_attribution()`. Installed as a sibling symlink so the two Python hooks can `from _common import …` at runtime.
 

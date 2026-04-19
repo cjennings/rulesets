@@ -1,6 +1,6 @@
 ---
 name: c4-diagram
-description: Generate C4 architecture diagrams from a textual description of a software system. Use when the user describes a system they want to diagram, or wants to create architecture diagrams for a planned/proposed system.
+description: Generate C4 architecture diagrams from a textual description of a software system. Use when the user describes a system they want to diagram, or wants to create architecture diagrams for a planned/proposed system. Dispatched by arch-document for context and container views; usable standalone when the system is described in prose rather than existing code. Part of the architecture suite (arch-design / arch-decide / arch-document / arch-evaluate + c4-analyze / c4-diagram for notation-specific diagramming).
 argument-hint: "[description or diagram level]"
 ---
 

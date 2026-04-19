@@ -1,6 +1,6 @@
 ---
 name: arch-decide
-description: Create, update, and manage Architecture Decision Records (ADRs) that capture significant technical decisions — context, options, chosen approach, consequences. Five template variants (MADR, Nygard, Y-statement, lightweight, RFC). Covers ADR lifecycle (proposed → accepted → deprecated / superseded), review process, and adr-tools automation. Use when documenting an architectural choice, reviewing past decisions, or establishing a decision process. Part of the arch-* suite (arch-design / arch-decide / arch-document / arch-evaluate).
+description: Create, update, and manage Architecture Decision Records (ADRs) that capture significant technical decisions — context, options, chosen approach, consequences. Five template variants (MADR, Nygard, Y-statement, lightweight, RFC). Covers ADR lifecycle (proposed → accepted → deprecated / superseded), review process, and adr-tools automation. Use when documenting an architectural choice, reviewing past decisions, or establishing a decision process. Part of the architecture suite (arch-design / arch-decide / arch-document / arch-evaluate + c4-analyze / c4-diagram for notation-specific diagramming).
 ---
 
 # Architecture Decision Records

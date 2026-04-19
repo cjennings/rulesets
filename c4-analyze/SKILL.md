@@ -1,6 +1,6 @@
 ---
 name: c4-analyze
-description: Analyze a codebase or git repo and generate C4 architecture diagrams (System Context, Container, Component). Use when the user wants to visualize or document the architecture of an existing project.
+description: Analyze a codebase or git repo and generate C4 architecture diagrams (System Context, Container, Component). Use when the user wants to visualize or document the architecture of an existing project. Dispatched by arch-document for building-block and container views; usable standalone for quick architecture visualization. Part of the architecture suite (arch-design / arch-decide / arch-document / arch-evaluate + c4-analyze / c4-diagram for notation-specific diagramming).
 argument-hint: "[path-or-container-name]"
 ---
 

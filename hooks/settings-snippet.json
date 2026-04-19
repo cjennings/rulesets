@@ -12,7 +12,8 @@
         "matcher": "Bash",
         "hooks": [
           { "type": "command", "command": "~/.claude/hooks/git-commit-confirm.py" },
-          { "type": "command", "command": "~/.claude/hooks/gh-pr-create-confirm.py" }
+          { "type": "command", "command": "~/.claude/hooks/gh-pr-create-confirm.py" },
+          { "type": "command", "command": "~/.claude/hooks/destructive-bash-confirm.py" }
         ]
       }
     ]
