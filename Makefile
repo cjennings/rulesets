@@ -5,7 +5,8 @@ SKILLS_DIR := $(HOME)/.claude/skills
 RULES_DIR  := $(HOME)/.claude/rules
 SKILLS     := c4-analyze c4-diagram debug add-tests respond-to-review review-pr fix-issue security-check \
               arch-design arch-decide arch-document arch-evaluate \
-              brainstorm codify root-cause-trace five-whys prompt-engineering
+              brainstorm codify root-cause-trace five-whys prompt-engineering \
+              playwright-skill
 RULES      := $(wildcard claude-rules/*.md)
 LANGUAGES  := $(notdir $(wildcard languages/*))
 
@@ -47,18 +48,32 @@ help: ## Show this help
 
 ##@ Dependencies
 
-deps: ## Install required tools (claude, jq, fzf, ripgrep, emacs)
+deps: ## Install required tools (claude, node, jq, fzf, ripgrep, emacs, playwright)
 	@echo "Checking dependencies..."
-	@command -v claude >/dev/null 2>&1 && echo "  claude:  installed" || \
-		{ echo "  claude:  installing via npm..."; npm install -g @anthropic-ai/claude-code; }
-	@command -v jq >/dev/null 2>&1 && echo "  jq:      installed" || \
-		{ echo "  jq:      installing..."; $(call install_pkg,jq); }
-	@command -v fzf >/dev/null 2>&1 && echo "  fzf:     installed" || \
-		{ echo "  fzf:     installing..."; $(call install_pkg,fzf); }
-	@command -v rg >/dev/null 2>&1 && echo "  ripgrep: installed" || \
-		{ echo "  ripgrep: installing..."; $(call install_pkg,ripgrep); }
-	@command -v emacs >/dev/null 2>&1 && echo "  emacs:   installed" || \
-		{ echo "  emacs:   installing..."; $(call install_pkg,emacs); }
+	@command -v claude >/dev/null 2>&1 && echo "  claude:     installed" || \
+		{ echo "  claude:     installing via npm..."; npm install -g @anthropic-ai/claude-code; }
+	@command -v node >/dev/null 2>&1 && echo "  node:       installed ($$(node --version))" || \
+		{ echo "  node:       installing..."; $(call install_pkg,nodejs); }
+	@command -v npm >/dev/null 2>&1 && echo "  npm:        installed" || \
+		{ echo "  npm:        installing..."; $(call install_pkg,npm); }
+	@command -v jq >/dev/null 2>&1 && echo "  jq:         installed" || \
+		{ echo "  jq:         installing..."; $(call install_pkg,jq); }
+	@command -v fzf >/dev/null 2>&1 && echo "  fzf:        installed" || \
+		{ echo "  fzf:        installing..."; $(call install_pkg,fzf); }
+	@command -v rg >/dev/null 2>&1 && echo "  ripgrep:    installed" || \
+		{ echo "  ripgrep:    installing..."; $(call install_pkg,ripgrep); }
+	@command -v emacs >/dev/null 2>&1 && echo "  emacs:      installed" || \
+		{ echo "  emacs:      installing..."; $(call install_pkg,emacs); }
+	@if [ -d "$(CURDIR)/playwright-skill" ]; then \
+		if [ -d "$(CURDIR)/playwright-skill/node_modules/playwright" ]; then \
+			echo "  playwright: installed (skill node_modules present)"; \
+		else \
+			echo "  playwright: running skill setup (npm install + chromium download ~300 MB)..."; \
+			(cd "$(CURDIR)/playwright-skill" && npm run setup); \
+		fi \
+	else \
+		echo "  playwright: skipped (playwright-skill/ not present in this repo)"; \
+	fi
 	@echo "Done."
 
 ##@ Global install (symlinks into ~/.claude/)
