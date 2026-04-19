@@ -82,6 +82,61 @@ by manual re-cloning.
 - [ ] Rate-limit / offline mode: if GitHub is unreachable, should skill fail
   or degrade gracefully? Likely degrade; print warning per fork.
 
+* TODO [#B] Build /research-writer — clean-room synthesis for research-backed long-form
+SCHEDULED: <2026-05-15 Fri>
+
+Gap in current rulesets: between =brainstorm= (idea refinement → design doc)
+and =arch-document= (arc42 technical docs), there's no skill for
+research-backed long-form prose — blog posts, essays, white papers,
+proposals with data backing, article-length content with citations.
+
+Craig writes documents across many contexts (defense-contractor work,
+personal, technical, proposals). The gap is real.
+
+*Evaluated 2026-04-19:* ComposioHQ/awesome-claude-skills has a
+=content-research-writer= skill (540 lines, 14 KB) that attempts this. *Not
+adopting:*
+- Parent repo has no LICENSE file — reuse legally ambiguous
+- Bloated: 540 lines of prose-scaffolding with no tooling
+- No citation-style enforcement (APA/Chicago/IEEE/MLA)
+- No source-quality heuristics (primary vs secondary, peer-review, recency)
+- Fictional example citations in the skill itself (models the hallucination
+  failure mode a citation-focused skill should prevent)
+- No citation-verification step
+- Overlaps with =humanizer= at polish with no composition guidance
+
+*Patterns worth lifting clean-room (from their better parts):*
+- Folder convention =~/writing/<article-name>/= with =outline.md=,
+  =research.md=, versioned drafts, =sources/=
+- Section-by-section feedback loop (outline validated → per-section
+  research validated → per-section draft validated)
+- Hook alternatives pattern (generate three hook variants with rationale)
+
+*Additions for the clean-room version (v1):*
+- Citation-style selection (APA / Chicago / MLA / IEEE / custom) with
+  style-specific examples and a pick-one step up front
+- Source-quality heuristics: primary > secondary; peer-reviewed; recency
+  thresholds by domain; publisher reputation; funding transparency
+- Citation-verification discipline: fetch real sources, never fabricate,
+  mark unverifiable claims with =[citation needed]= rather than inventing
+- Composition hand-off to =/humanizer= at the polish stage
+- Classification awareness: if the working directory or context signals
+  defense / regulated territory, flag any sentence that might touch CUI
+  or classified material before emission
+
+*Target:* ~150-200 lines, clean-room per blanket policy.
+
+*When to build:* wait for a real research-writing task to validate the
+design against actual document patterns. Building preemptively risks
+tuning for my guess at Craig's workflow rather than his real one.
+Triggers that would prompt "let's build it now":
+- Starting a white paper / proposal that needs citation discipline
+- Writing a technical blog post with external references
+- A pattern of hitting the same research-writing friction 3+ times
+
+Upstream reference (do not vendor): ComposioHQ/awesome-claude-skills
+=content-research-writer/SKILL.md=.
+
 * TODO [#C] Try Skill Seekers on a real DeepSat docs-briefing need
 SCHEDULED: <2026-05-15 Fri>
 
