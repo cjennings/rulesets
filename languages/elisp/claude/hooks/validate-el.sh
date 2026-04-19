@@ -34,6 +34,7 @@ case "$f" in
                      -L "$PROJECT_ROOT" \
                      -L "$PROJECT_ROOT/modules" \
                      -L "$PROJECT_ROOT/tests" \
+                     --eval '(package-initialize)' \
                      "$f" \
                      --eval '(check-parens)' \
                      --eval "(or (byte-compile-file \"$f\") (kill-emacs 1))" 2>&1)"; then
@@ -75,6 +76,7 @@ if [ "$count" -ge 1 ] && [ "$count" -le "$MAX_AUTO_TEST_FILES" ]; then
                    -L "$PROJECT_ROOT" \
                    -L "$PROJECT_ROOT/modules" \
                    -L "$PROJECT_ROOT/tests" \
+                   --eval '(package-initialize)' \
                    -l ert "${load_args[@]}" \
                    --eval "(ert-run-tests-batch-and-exit '(not (tag :slow)))" 2>&1)"; then
     printf 'TESTS FAILED for %s (%d test file(s)):\n%s\n' "$f" "$count" "$output" >&2
