@@ -8,7 +8,7 @@ SKILLS     := c4-analyze c4-diagram debug add-tests respond-to-review review-cod
               arch-design arch-decide arch-document arch-evaluate \
               brainstorm codify root-cause-trace five-whys prompt-engineering \
               playwright-js playwright-py frontend-design pairwise-tests \
-              finish-branch
+              finish-branch create-v2mom
 RULES      := $(wildcard claude-rules/*.md)
 HOOKS      := $(wildcard hooks/*.sh hooks/*.py)
 LANGUAGES  := $(notdir $(wildcard languages/*))
