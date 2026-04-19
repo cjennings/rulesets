@@ -35,9 +35,11 @@ See rule files in `.claude/rules/`:
 
 ## Git Workflow
 
-- Conventional commit prefixes: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`
-- Pre-commit hook in `githooks/` scans for secrets and runs `check-parens` on staged `.el` files
-- Activate on fresh clone: `git config core.hooksPath githooks`
+Commit conventions: see `.claude/rules/commits.md` (author identity,
+no AI attribution, message format).
+
+Pre-commit hook in `githooks/` scans for secrets and runs `check-parens` on
+staged `.el` files. Activate on fresh clone with `git config core.hooksPath githooks`.
 
 ## Problem-Solving Approach
 
