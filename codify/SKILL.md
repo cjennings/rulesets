@@ -1,11 +1,11 @@
 ---
-name: memorize
-description: Curate concrete, actionable insights into the project's `CLAUDE.md` so they survive across sessions and compound over time. Harvests recent-session learnings (patterns that worked, anti-patterns that bit, API gotchas, verification checks), filters against quality gates (atomic, evidence-backed, non-redundant, verifiable, safe), and writes into a dedicated `## Memorized Insights` section rather than scattering entries. Use after a productive session, a bug fix that revealed a non-obvious pattern, or an explicit review where you want learnings preserved. Supports `--dry-run` to preview, `--max=N` to cap output, `--target=<path>` to write elsewhere, `--section=<name>` to override the destination section. Flags insights that look cross-project and suggests promotion to `~/code/rulesets/claude-rules/` instead. Do NOT use for session wrap-up / progress summaries (not insights), for private personal context (auto-memory handles that, not a tracked file), or for rules that belong in a formal rules file (those go under `.claude/rules/`). Synthesis of Agentic Context Engineering (ACE, arXiv:2510.04618) — grow-and-refine without context collapse.
+name: codify
+description: Codify concrete, actionable insights from recent session work into the project's `CLAUDE.md` so they survive across sessions and compound over time. Harvests patterns that worked, anti-patterns that bit, API gotchas, specific thresholds, and verification checks. Filters against quality gates (atomic, evidence-backed, non-redundant, verifiable, safe, stable). Writes into a dedicated `## Codified Insights` section rather than scattering entries. Use after a productive session, a bug fix that revealed a non-obvious pattern, or an explicit review where you want learnings preserved as rules. Supports `--dry-run` to preview, `--max=N` to cap output, `--target=<path>` to write elsewhere, `--section=<name>` to override the destination section. Flags insights that look cross-project and suggests promotion to `~/code/rulesets/claude-rules/` instead. Do NOT use for session wrap-up / progress summaries (not insights), for private personal context (auto-memory handles that, not a tracked file), or for formal rules that belong in `.claude/rules/`. Informed by Agentic Context Engineering (ACE, arXiv:2510.04618) — grow-and-refine without context collapse.
 ---
 
-# Memorize
+# Codify
 
-Turn transient session insights into durable, actionable entries in the project's `CLAUDE.md`. The goal: each run of this skill should make the next session measurably better, without diluting what's already there.
+Turn transient session insights into durable, actionable entries in the project's `CLAUDE.md`. Each invocation should make the next session measurably better without diluting what's already there. Select carefully, phrase specifically, commit deliberately.
 
 ## When to Use
 
@@ -28,7 +28,7 @@ Three distinct systems, zero overlap:
 | System | Location | Scope | Purpose |
 |---|---|---|---|
 | **auto-memory** | `~/.claude/projects/<cwd>/memory/` | Private, per-working-directory | Session-bridging context about the user and project (feedback, user traits, project state). Written continuously by the agent. |
-| **`/memorize` (this skill)** | Project `CLAUDE.md` | Public, tracked, per-project | Explicit, curated rules and patterns. Written deliberately by the user invocation. |
+| **`/codify` (this skill)** | Project `CLAUDE.md` | Public, tracked, per-project | Explicit, curated rules and patterns. Written deliberately by the user invocation. |
 | **Formal rules** | `.claude/rules/*.md`, `~/code/rulesets/claude-rules/` | Public, tracked, per-project or global | Stable policy (style, conventions, verification). Authored once, rarely updated. |
 
 Use the right system for the right content.
@@ -76,11 +76,11 @@ For each candidate insight, apply these gates. Fail any → drop the entry.
 
 ### Phase 3 — Write
 
-Write approved insights to a dedicated section of `CLAUDE.md`. Default section name: **`## Memorized Insights`**. Override with `--section=<name>`.
+Write approved insights to a dedicated section of `CLAUDE.md`. Default section name: **`## Codified Insights`**. Override with `--section=<name>`.
 
 **Discipline:**
 
-- **One section only.** Don't scatter entries across CLAUDE.md. All memorized content in one place means future `/memorize` runs and human readers find it fast.
+- **One section only.** Don't scatter entries across CLAUDE.md. All codified content in one place means future `/codify` runs and human readers find it fast.
 - **Create the section if absent.** Place it near the end of CLAUDE.md, before any footer links.
 - **Preserve chronology within the section.** Newer entries appended; don't shuffle.
 - **Include provenance.** Each entry gets a date and, where useful, a one-word source hint (`pattern:`, `gotcha:`, `threshold:`, `anti-pattern:`, `verify:`).
@@ -106,13 +106,13 @@ After writing, check:
 - [ ] Every entry passed all Phase 2 gates
 - [ ] Each entry is atomic (one idea)
 - [ ] No near-duplicates were created
-- [ ] The `## Memorized Insights` section is coherent — entries flow, categories aren't interleaved randomly
+- [ ] The `## Codified Insights` section is coherent — entries flow, categories aren't interleaved randomly
 
 If the validation surfaces a problem, fix before exiting.
 
 ## Cross-Project Promotion
 
-Some insights apply to *all* the user's projects, not just this one. Examples:
+Some insights apply to *all* your projects, not just this one. Examples:
 
 - "Always emit JSON with a stable key order for git diffs"
 - "For TypeScript libraries, expose types via `package.json#exports`"
@@ -135,7 +135,7 @@ Promotion happens manually — the skill doesn't edit the rulesets repo automati
 - **`--dry-run`** — show the proposed entries and where they'd be written; do not modify any files.
 - **`--max=N`** — cap output to the top N insights by specificity + evidence.
 - **`--target=<path>`** — write to a different file. Defaults to `./CLAUDE.md`. Use e.g. `docs/learnings.md` if the project prefers a separate file.
-- **`--section=<name>`** — override the default `## Memorized Insights` section name.
+- **`--section=<name>`** — override the default `## Codified Insights` section name.
 - **`--source=<spec>`** — scope what gets harvested. Values: `last` (most recent message), `selection` (a user-highlighted region if supported), `chat:<id>` (a specific past conversation), `commits:<range>` (e.g., `commits:HEAD~10..`). Defaults to a reasonable window of recent session context.
 
 ## Output
@@ -168,7 +168,7 @@ Before accepting the additions:
 
 - [ ] Each entry has a source hint and a date
 - [ ] Each entry passes the atomic / specific / evidence-backed / non-redundant / safe / stable gates
-- [ ] The `## Memorized Insights` section exists exactly once in the target
+- [ ] The `## Codified Insights` section exists exactly once in the target
 - [ ] Promotion candidates (if any) have been flagged, not silently promoted
 - [ ] `--dry-run` was used at least once if the target file is under active template management (e.g. bundled CLAUDE.md from rulesets install)
 

@@ -5,7 +5,7 @@ SKILLS_DIR := $(HOME)/.claude/skills
 RULES_DIR  := $(HOME)/.claude/rules
 SKILLS     := c4-analyze c4-diagram debug add-tests respond-to-review review-pr fix-issue security-check \
               arch-design arch-decide arch-document arch-evaluate \
-              brainstorm memorize root-cause-trace five-whys
+              brainstorm codify root-cause-trace five-whys
 RULES      := $(wildcard claude-rules/*.md)
 LANGUAGES  := $(notdir $(wildcard languages/*))
 
