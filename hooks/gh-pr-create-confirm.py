@@ -24,20 +24,17 @@ Wire in ~/.claude/settings.json alongside git-commit-confirm.py:
     }
 """
 
-import json
 import re
 import sys
+
+from _common import read_payload, respond_ask, scan_attribution
 
 
 MAX_BODY_LINES = 20
 
 
 def main() -> int:
-    try:
-        payload = json.loads(sys.stdin.read())
-    except (json.JSONDecodeError, ValueError):
-        return 0
-
+    payload = read_payload()
     if payload.get("tool_name") != "Bash":
         return 0
 
@@ -48,14 +45,16 @@ def main() -> int:
     fields = parse_pr_create(cmd)
     reason = format_pr_confirmation(fields)
 
-    output = {
-        "hookSpecificOutput": {
-            "hookEventName": "PreToolUse",
-            "permissionDecision": "ask",
-            "permissionDecisionReason": reason,
-        }
-    }
-    print(json.dumps(output))
+    # Scan both title and body — PRs leak attribution in either slot.
+    scan_text = "\n".join(filter(None, [fields.get("title"), fields.get("body")]))
+    hits = scan_attribution(scan_text)
+    system_message = (
+        f"WARNING — PR title/body contains AI-attribution patterns: "
+        f"{'; '.join(hits)}. Policy forbids AI credit in PRs."
+        if hits else None
+    )
+
+    respond_ask(reason, system_message=system_message)
     return 0
 
 

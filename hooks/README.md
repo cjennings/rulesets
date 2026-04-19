@@ -10,6 +10,10 @@ Machine-wide Claude Code hooks that install into `~/.claude/hooks/` and apply to
 | `git-commit-confirm.py` | `PreToolUse(Bash)` | Gates `git commit` behind a confirmation modal showing the parsed message, staged files, diff stats, and git author. Parses both HEREDOC and `-m`/`--message` forms. |
 | `gh-pr-create-confirm.py` | `PreToolUse(Bash)` | Gates `gh pr create` behind a confirmation modal showing title, base←head, reviewers, labels, assignees, milestone, draft flag, and body (HEREDOC or quoted). |
 
+Shared library (not a hook): `_common.py` — `read_payload()`, `respond_ask()`, `scan_attribution()`. Installed as a sibling symlink so the two Python hooks can `from _common import …` at runtime.
+
+Both confirm hooks emit a `systemMessage` warning alongside the confirmation modal when they detect AI-attribution patterns (`Co-Authored-By: Claude`, 🤖, "Generated with Claude Code", etc.) in the commit message or PR title/body — useful as an automated policy check for environments where AI credit is forbidden.
+
 ## Install
 
 ### One-liner (from this repo)

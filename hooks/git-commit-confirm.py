@@ -28,10 +28,11 @@ Wire in ~/.claude/settings.json (or per-project .claude/settings.json):
     }
 """
 
-import json
 import re
 import subprocess
 import sys
+
+from _common import read_payload, respond_ask, scan_attribution
 
 
 MAX_FILES_SHOWN = 25
@@ -39,11 +40,7 @@ MAX_MESSAGE_LINES = 30
 
 
 def main() -> int:
-    try:
-        payload = json.loads(sys.stdin.read())
-    except (json.JSONDecodeError, ValueError):
-        return 0  # malformed; don't block
-
+    payload = read_payload()
     if payload.get("tool_name") != "Bash":
         return 0
 
@@ -58,14 +55,14 @@ def main() -> int:
 
     reason = format_confirmation(message, staged, stats, author)
 
-    output = {
-        "hookSpecificOutput": {
-            "hookEventName": "PreToolUse",
-            "permissionDecision": "ask",
-            "permissionDecisionReason": reason,
-        }
-    }
-    print(json.dumps(output))
+    hits = scan_attribution(message)
+    system_message = (
+        f"WARNING — commit message contains AI-attribution patterns: "
+        f"{'; '.join(hits)}. Policy forbids AI credit in commits."
+        if hits else None
+    )
+
+    respond_ask(reason, system_message=system_message)
     return 0
 
 
