@@ -1,6 +1,6 @@
 ---
-name: playwright-skill
-description: Complete browser automation with Playwright. Auto-detects dev servers, writes clean test scripts to /tmp. Test pages, fill forms, take screenshots, check responsive design, validate UX, test login flows, check links, automate any browser task. Use when user wants to test websites, automate browser interactions, validate web functionality, or perform any browser-based testing.
+name: playwright-js
+description: Browser automation and UI testing with Playwright using the JavaScript bindings. Auto-detects dev servers, writes clean test scripts to /tmp, runs visible Chromium by default for interactive debugging, ships a helper library (safe click/type retries, cookie banner handler, table extraction, dev-server detection, env-driven header injection). Use when testing a web app with a JavaScript or TypeScript stack (React, Next.js, Vue, Svelte, Express, Node frontends generally), automating browser interactions, validating UX, testing login flows, or checking links. Prefer this over playwright-py when the project is JS/TS-native. See also `/playwright-py` for Python-based variant (Django, FastAPI backend smoke tests, pytest integration).
 ---
 
 **IMPORTANT - Path Resolution:**
@@ -454,7 +454,60 @@ User: "Use 3001"
 
 ---
 
+## Added: Static HTML vs Dynamic Webapp Decision
+
+Before writing any test, decide which path the target needs. Missing this step causes the most common failure: inspecting a dynamic page before JS has populated it.
+
+```
+User task → Is it static HTML (file:// or plain server-rendered)?
+    ├─ Yes → Read the HTML source directly, identify selectors from the raw markup,
+    │         write a Playwright script using those selectors.
+    │
+    └─ No (dynamic webapp) →
+        1. Navigate to the page
+        2. Wait for networkidle:  await page.waitForLoadState('networkidle');
+        3. Inspect rendered DOM (screenshot, page.content(), or locator().all())
+        4. Identify selectors from the rendered state, not the source
+        5. Execute actions with those selectors
+```
+
+**Common pitfall:** inspecting the DOM before `networkidle` on a dynamic app returns stale content or an empty skeleton. Every "element not found" bug on dynamic pages should trigger a "did I wait for networkidle?" check first.
+
+## Added: Reconnaissance-Then-Action Pattern
+
+For any non-trivial interaction on a dynamic page:
+
+1. **Reconnoiter.** Navigate, wait for load, capture state:
+   ```javascript
+   await page.goto(TARGET_URL);
+   await page.waitForLoadState('networkidle');
+   await page.screenshot({ path: '/tmp/inspect.png', fullPage: true });
+   const html = await page.content();
+   const buttons = await page.locator('button').all();
+   ```
+
+2. **Decide.** From the screenshot + content + locator list, pick the selectors you'll use. Don't guess from source.
+
+3. **Act.** Execute the interaction with the discovered selectors.
+
+This beats "write what you think the page looks like, run it, fix the selectors when it breaks." Especially valuable for first-time automation on an unfamiliar app.
+
+## Added: Console Log Capture
+
+Frontend errors often don't surface in the Playwright output unless captured explicitly. For flaky tests or "works in my browser, fails in Playwright" symptoms:
+
+```javascript
+page.on('console', msg => console.log(`[browser.${msg.type()}] ${msg.text()}`));
+page.on('pageerror', err => console.log(`[browser.pageerror] ${err.message}`));
+page.on('requestfailed', req => console.log(`[browser.requestfailed] ${req.url()} ${req.failure()?.errorText}`));
+```
+
+Attach these before `page.goto()`. Messages stream to stdout during the test run, giving you the same signal the browser devtools console would.
+
+---
+
 ## Attribution
 
-Forked from [lackeyjb/playwright-skill](https://github.com/lackeyjb/playwright-skill) — MIT licensed.
-See `LICENSE` in this directory for the original copyright and terms.
+Forked from [lackeyjb/playwright-skill](https://github.com/lackeyjb/playwright-skill) — MIT licensed. See `LICENSE` in this directory for the original copyright and terms.
+
+**Local additions** (not upstream): the three *Added:* sections above (Static HTML vs Dynamic Webapp Decision, Reconnaissance-Then-Action Pattern, Console Log Capture) were added in this fork, informed by patterns from Anthropic's `webapp-testing` skill (the sibling `playwright-py` in this rulesets repo). The upstream skill is self-contained; these additions pair well with it but are not required.

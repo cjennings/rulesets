@@ -6,7 +6,7 @@ RULES_DIR  := $(HOME)/.claude/rules
 SKILLS     := c4-analyze c4-diagram debug add-tests respond-to-review review-pr fix-issue security-check \
               arch-design arch-decide arch-document arch-evaluate \
               brainstorm codify root-cause-trace five-whys prompt-engineering \
-              playwright-skill
+              playwright-js playwright-py
 RULES      := $(wildcard claude-rules/*.md)
 LANGUAGES  := $(notdir $(wildcard languages/*))
 
@@ -64,15 +64,26 @@ deps: ## Install required tools (claude, node, jq, fzf, ripgrep, emacs, playwrig
 		{ echo "  ripgrep:    installing..."; $(call install_pkg,ripgrep); }
 	@command -v emacs >/dev/null 2>&1 && echo "  emacs:      installed" || \
 		{ echo "  emacs:      installing..."; $(call install_pkg,emacs); }
-	@if [ -d "$(CURDIR)/playwright-skill" ]; then \
-		if [ -d "$(CURDIR)/playwright-skill/node_modules/playwright" ]; then \
-			echo "  playwright: installed (skill node_modules present)"; \
+	@if [ -d "$(CURDIR)/playwright-js" ]; then \
+		if [ -d "$(CURDIR)/playwright-js/node_modules/playwright" ]; then \
+			echo "  playwright (js):  installed (skill node_modules present)"; \
 		else \
-			echo "  playwright: running skill setup (npm install + chromium download ~300 MB)..."; \
-			(cd "$(CURDIR)/playwright-skill" && npm run setup); \
+			echo "  playwright (js):  running skill setup (npm install + chromium download ~300 MB)..."; \
+			(cd "$(CURDIR)/playwright-js" && npm run setup); \
 		fi \
 	else \
-		echo "  playwright: skipped (playwright-skill/ not present in this repo)"; \
+		echo "  playwright (js):  skipped (playwright-js/ not present)"; \
+	fi
+	@if [ -d "$(CURDIR)/playwright-py" ]; then \
+		if python3 -c "import playwright" >/dev/null 2>&1; then \
+			echo "  playwright (py):  installed (python package importable)"; \
+		else \
+			echo "  playwright (py):  installing via pip --user..."; \
+			python3 -m pip install --user playwright && \
+			python3 -m playwright install chromium; \
+		fi \
+	else \
+		echo "  playwright (py):  skipped (playwright-py/ not present)"; \
 	fi
 	@echo "Done."
 
