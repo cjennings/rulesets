@@ -66,6 +66,22 @@ def test_add_item_quantity_validation(cart, quantity, valid):
             cart.add("SKU-1", quantity=quantity)
 ```
 
+### Pairwise / Combinatorial for Parameter-Heavy Functions
+
+When `@pytest.mark.parametrize` would require listing dozens of combinations
+(feature flags × permissions × shipping × payment × etc.), switch to
+combinatorial coverage via `/pairwise-tests`. The skill generates a minimal
+matrix covering every 2-way parameter interaction — typically 80-99% fewer
+cases than exhaustive, catching most combinatorial bugs.
+
+Workflow: invoke `/pairwise-tests` → get a PICT model + generated test matrix
+→ paste the matrix into a pytest parametrize block, or use the helper to
+emit directly. The `pypict` package (`pip install pypict`) handles
+generation in-process.
+
+See `testing.md` § Combinatorial Coverage for the general rule and when
+to skip.
+
 ## Mocking Guidelines
 
 ### Mock these (external boundaries):
