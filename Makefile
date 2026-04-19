@@ -5,7 +5,7 @@ RULES := $(wildcard claude-rules/*.md)
 LANGUAGES := $(notdir $(wildcard languages/*))
 
 .PHONY: help install uninstall list \
-        install-lang list-languages install-elisp
+        install-lang list-languages install-elisp install-python
 
 help:
 	@echo "rulesets — Claude Code skills, rules, and language bundles"
@@ -18,6 +18,7 @@ help:
 	@echo "  Per-project language rulesets:"
 	@echo "    make install-lang LANG=<lang> PROJECT=<path> [FORCE=1]"
 	@echo "    make install-elisp PROJECT=<path> [FORCE=1]   (shortcut)"
+	@echo "    make install-python PROJECT=<path> [FORCE=1]  (shortcut)"
 	@echo "    make list-languages     - Show available language bundles"
 	@echo ""
 	@echo "  FORCE=1 overwrites an existing CLAUDE.md (other files always overwrite)."
@@ -110,3 +111,6 @@ install-lang:
 
 install-elisp:
 	@$(MAKE) install-lang LANG=elisp PROJECT="$(PROJECT)" FORCE="$(FORCE)"
+
+install-python:
+	@$(MAKE) install-lang LANG=python PROJECT="$(PROJECT)" FORCE="$(FORCE)"

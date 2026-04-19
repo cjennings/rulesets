@@ -35,14 +35,22 @@ PROJECT="$(cd "$PROJECT" && pwd)"
 
 echo "Installing '$LANG' ruleset into $PROJECT"
 
-# 1. .claude/ — rules, hooks, settings (authoritative, always overwrite)
+# 1. Generic rules from claude-rules/ (shared across all languages)
+if [ -d "$REPO_ROOT/claude-rules" ]; then
+  mkdir -p "$PROJECT/.claude/rules"
+  cp "$REPO_ROOT/claude-rules"/*.md "$PROJECT/.claude/rules/" 2>/dev/null || true
+  count=$(ls -1 "$REPO_ROOT/claude-rules"/*.md 2>/dev/null | wc -l)
+  echo "  [ok] .claude/rules/ — $count generic rule(s) from claude-rules/"
+fi
+
+# 2. .claude/ — language-specific rules, hooks, settings (authoritative, always overwrite)
 if [ -d "$SRC/claude" ]; then
   mkdir -p "$PROJECT/.claude"
   cp -rT "$SRC/claude" "$PROJECT/.claude"
   if [ -d "$PROJECT/.claude/hooks" ]; then
     find "$PROJECT/.claude/hooks" -type f -name '*.sh' -exec chmod +x {} \;
   fi
-  echo "  [ok] .claude/ installed"
+  echo "  [ok] .claude/ — language-specific content"
 fi
 
 # 2. githooks/ — pre-commit etc.

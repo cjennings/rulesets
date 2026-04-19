@@ -1,6 +1,10 @@
 # Testing Standards
 
-Applies to: `**/*.py`, `**/*.ts`, `**/*.tsx`, `**/*.js`, `**/*.jsx`
+Applies to: `**/*`
+
+Core TDD discipline and test quality rules. Language-specific patterns
+(frameworks, fixture idioms, mocking tools) live in per-language testing files
+under `languages/<lang>/claude/rules/`.
 
 ## Test-Driven Development (Default)
 
@@ -56,6 +60,8 @@ Every unit under test requires coverage across three categories:
 
 ## Test Organization
 
+Typical layout:
+
 ```
 tests/
   unit/           # One test file per source file
@@ -63,14 +69,21 @@ tests/
   e2e/            # Full system tests
 ```
 
+Per-language files may adjust this (e.g. Elisp collates ERT tests into
+`tests/test-<module>*.el` without subdirectories).
+
 ## Naming Convention
 
 - Unit: `test_<module>_<function>_<scenario>_<expected>`
 - Integration: `test_integration_<workflow>_<scenario>_<outcome>`
 
 Examples:
-- `test_satellite_calculate_position_null_input_raises_error`
-- `test_integration_telemetry_sync_network_timeout_retries_three_times`
+- `test_cart_apply_discount_expired_coupon_raises_error`
+- `test_integration_order_sync_network_timeout_retries_three_times`
+
+Languages that prefer camelCase, kebab-case, or other conventions keep the
+structure but use their idiom. Consistency within a project matters more than
+the specific case choice.
 
 ## Test Quality
 
@@ -100,7 +113,7 @@ Mock external dependencies at the system boundary:
 Never mock:
 - The code under test
 - Internal domain logic
-- Framework behavior (ORM queries, middleware, hooks)
+- Framework behavior (ORM queries, middleware, hooks, buffer primitives)
 
 ## Coverage Targets
 
