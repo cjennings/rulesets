@@ -3,12 +3,14 @@ SHELL := /bin/bash
 
 SKILLS_DIR := $(HOME)/.claude/skills
 RULES_DIR  := $(HOME)/.claude/rules
+HOOKS_DIR  := $(HOME)/.claude/hooks
 SKILLS     := c4-analyze c4-diagram debug add-tests respond-to-review review-code fix-issue security-check \
               arch-design arch-decide arch-document arch-evaluate \
               brainstorm codify root-cause-trace five-whys prompt-engineering \
               playwright-js playwright-py frontend-design pairwise-tests \
               finish-branch
 RULES      := $(wildcard claude-rules/*.md)
+HOOKS      := $(wildcard hooks/*.sh hooks/*.py)
 LANGUAGES  := $(notdir $(wildcard languages/*))
 
 # Pick target project — use PROJECT= or interactive fzf over local .git dirs.
@@ -35,7 +37,7 @@ $(if $(shell command -v pacman 2>/dev/null),sudo pacman -S --noconfirm $(1),\
 $(error No supported package manager found (brew/apt-get/pacman)))))
 endef
 
-.PHONY: help install uninstall list \
+.PHONY: help install uninstall list install-hooks uninstall-hooks \
         install-lang install-elisp install-python list-languages \
         diff lint deps
 
@@ -168,6 +170,50 @@ list: ## Show global install status
 			echo "  - $$name"; \
 		fi \
 	done
+	@echo ""
+	@echo "Hooks:"
+	@for hook in $(HOOKS); do \
+		name=$$(basename $$hook); \
+		if [ -L "$(HOOKS_DIR)/$$name" ]; then \
+			echo "  ✓ $$name (installed)"; \
+		else \
+			echo "  - $$name"; \
+		fi \
+	done
+
+install-hooks: ## Symlink global hooks into ~/.claude/hooks/ + print settings.json snippet
+	@mkdir -p $(HOOKS_DIR)
+	@echo "Hooks:"
+	@for hook in $(HOOKS); do \
+		name=$$(basename $$hook); \
+		if [ -L "$(HOOKS_DIR)/$$name" ]; then \
+			echo "  skip  $$name (already linked)"; \
+		elif [ -e "$(HOOKS_DIR)/$$name" ]; then \
+			echo "  WARN  $$name exists and is not a symlink — skipping"; \
+		else \
+			ln -s "$(CURDIR)/$$hook" "$(HOOKS_DIR)/$$name"; \
+			echo "  link  $$name → $(HOOKS_DIR)/$$name"; \
+		fi \
+	done
+	@echo ""
+	@echo "Merge this into ~/.claude/settings.json (preserve any existing hooks arrays):"
+	@echo ""
+	@cat hooks/settings-snippet.json
+	@echo ""
+	@echo "After merging, reload Claude Code (open /hooks menu once, or restart the session)."
+
+uninstall-hooks: ## Remove global hook symlinks from ~/.claude/hooks/
+	@for hook in $(HOOKS); do \
+		name=$$(basename $$hook); \
+		if [ -L "$(HOOKS_DIR)/$$name" ]; then \
+			rm "$(HOOKS_DIR)/$$name"; \
+			echo "  rm    $$name"; \
+		else \
+			echo "  skip  $$name (not a symlink)"; \
+		fi \
+	done
+	@echo ""
+	@echo "Note: this does NOT edit ~/.claude/settings.json — remove the hook entries manually."
 
 ##@ Per-project language bundles
 
