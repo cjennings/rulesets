@@ -79,6 +79,7 @@ fi
 # 4. .gitignore — append missing lines (deduped, skip comments)
 if [ -f "$SRC/gitignore-add.txt" ]; then
   touch "$PROJECT/.gitignore"
+  header="# --- $LANG ruleset ---"
   added=0
   while IFS= read -r line || [ -n "$line" ]; do
     # Skip blank lines and comments in the source file
@@ -86,9 +87,9 @@ if [ -f "$SRC/gitignore-add.txt" ]; then
     case "$line" in \#*) continue ;; esac
     # Only add if not already present
     if ! grep -qxF "$line" "$PROJECT/.gitignore"; then
-      # If this is the first line we're adding, prepend a header
-      if [ "$added" -eq 0 ]; then
-        printf '\n# --- %s ruleset ---\n' "$LANG" >> "$PROJECT/.gitignore"
+      # Prepend header only if it isn't already in the file
+      if [ "$added" -eq 0 ] && ! grep -qxF "$header" "$PROJECT/.gitignore"; then
+        printf '\n%s\n' "$header" >> "$PROJECT/.gitignore"
       fi
       echo "$line" >> "$PROJECT/.gitignore"
       added=$((added + 1))
