@@ -25,11 +25,12 @@ by manual re-cloning.
   the upstream-at-time-of-fork. Store under =.skill-upstream/baseline/= or
   similar; committed to the rulesets repo so the merge base is reproducible.
 - *Apply changes:* skill edits files directly with per-file confirmation.
-- *Conflict policy:* git-style conflict markers (=<<<<<<<= / =>>>>>>>=) written
-  into the merged file. Emacs smerge-mode handles from there; =M-x smerge-ediff=
-  for heavier resolution. Fallback when baseline is missing/corrupt: write
-  =.local=, =.upstream=, =.baseline= files side-by-side and surface as manual
-  review.
+- *Conflict policy:* per-hunk prompt inside the skill. When a 3-way merge
+  produces a conflict, the skill walks each conflicting hunk and asks Craig:
+  keep-local / take-upstream / both / skip. Editor-independent; works on
+  machines where Emacs isn't available. Fallback when baseline is missing
+  or corrupt (can't run 3-way merge): write =.local=, =.upstream=,
+  =.baseline= files side-by-side and surface as manual review.
 
 ** V1 Scope
 
@@ -39,10 +40,15 @@ by manual re-cloning.
   - Clone each upstream at =ref= shallowly into =/tmp/=
   - Compare current skill state vs latest upstream vs stored baseline
   - Classify each file: =unchanged= / =upstream-only= / =local-only= / =both-changed=
-  - For =both-changed=: attempt =git merge-file --stdout <local> <baseline> <upstream>=;
-    write result (with conflict markers if any)
+  - For =both-changed=: run =git merge-file --stdout <local> <baseline> <upstream>=;
+    if clean, write result directly; if conflicts, parse the conflict-marker
+    output and feed each hunk into the per-hunk prompt loop
+- [ ] Per-hunk prompt loop:
+  - Show base / local / upstream side-by-side for each conflicting hunk
+  - Ask: keep-local / take-upstream / both (concatenate) / skip (leave marker)
+  - Assemble resolved hunks into the final file content
 - [ ] Per-fork summary output with file-level classification table
-- [ ] Per-file confirmation flow (yes / no / show-diff)
+- [ ] Per-file confirmation flow (yes / no / show-diff) BEFORE per-hunk loop
 - [ ] On successful sync: update =last_synced_commit= in the manifest
 - [ ] =--dry-run= to preview without writing
 
@@ -52,10 +58,14 @@ by manual re-cloning.
   "upgrade from v1.2 to v1.3" with release notes pulled in
 - [ ] Generate patch files as an alternative apply method (for users who prefer
   =git apply= / =patch= over in-place edits)
-- [ ] Interactive per-hunk merge prompting for finer control
+- [ ] Non-interactive mode (=--non-interactive= / CI): skip conflict resolution,
+  emit side-by-side files for later manual review
 - [ ] Auto-run on a schedule via Claude Code background agent
 - [ ] Summary of aggregate upstream activity across all forks (which forks have
   upstream changes waiting, which don't)
+- [ ] Optional editor integration: on machines with Emacs, offer
+  =M-x smerge-ediff= as an alternate path for users who prefer ediff over
+  per-hunk prompts
 
 ** Initial forks to enumerate (for manifest bootstrap)
 
