@@ -4,7 +4,7 @@ SHELL := /bin/bash
 SKILLS_DIR := $(HOME)/.claude/skills
 RULES_DIR  := $(HOME)/.claude/rules
 HOOKS_DIR  := $(HOME)/.claude/hooks
-SKILLS     := c4-analyze c4-diagram debug add-tests respond-to-review review-code fix-issue security-check \
+SKILLS     := c4-analyze c4-diagram debug add-tests respond-to-review review-code start-work security-check \
               arch-design arch-decide arch-document arch-evaluate \
               brainstorm codify root-cause-trace five-whys prompt-engineering \
               playwright-js playwright-py frontend-design pairwise-tests \

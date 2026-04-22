@@ -155,7 +155,7 @@ After the design is written and agreed:
 
 - **Each open question** → run `arch-decide` to record as an ADR
 - **System-level implications** → run `arch-design` to update the architecture brief
-- **Implementation** → whatever the project's implementation path is (`fix-issue`, `add-tests`, or direct work)
+- **Implementation** → whatever the project's implementation path is (`start-work`, `add-tests`, or direct work)
 
 Link the design doc from wherever it's being implemented (PR description, ticket, commit).
 
