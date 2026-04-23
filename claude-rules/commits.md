@@ -61,15 +61,13 @@ discussion, not the commit.
 
 ## Voice and Focus
 
-Applies to commit bodies, PR descriptions, and any longer-form prose in
-PR comments.
+Applies to commit bodies, PR descriptions, and PR comments (review replies, follow-up notes, thread responses).
 
-Write in the user's voice. First person when it fits ("I added X", "I
-retyped Y") reads like a person making a change. "This PR introduces X"
-or "This change restores Y" read as press-release self-narration. The
-commit *is* the change — don't announce it. When another author's prior
-work is the subject, name them ("Kostya's PR #116 did X"); otherwise
-skip the self-reference.
+**First person where it fits.** When the subject is you or a decision you made, use "I" ("I added X", "I kept the parameter as `Any` because..."). When the subject is a team decision or shared rationale, "we" fits. When another author's prior work is the subject, name them ("Kostya's PR #116 did X"). Third-person constructions like "This PR introduces X" or "This change restores Y" read as press-release self-narration. The commit *is* the change, so don't announce it. Code and systems can stay third-person when they're the actor ("the guard rejects...", "the serializer returns...") — first person is for describing what you did or decided, not for narrating how the code behaves.
+
+**Brief. Terse is fine.** A one-sentence body beats a paragraph saying the same thing. If the subject line covers it, skip the body entirely. Cut every clause that restates what the diff or the PR card already shows. Length is not a proxy for care. Rhetorical padding ("worth noting", "it's important to understand") always comes out; keep what a reader will actually use.
+
+**Kind.** PR comments and review replies are directed at a specific person. Acknowledge them when it fits ("thanks for the review") without pouring it on. When you disagree or push back, frame it as your read rather than a correction ("I think...", "my read was...", "did you mean X?"). Leave room for the other person to have seen something you didn't. A polite question beats a defensive explanation. Kindness is free and makes the next review cheaper.
 
 Focus on what was wrong and what was corrected. Not the mechanics.
 Readers skimming `git log` or a PR want the before-state, the
@@ -147,9 +145,23 @@ enough to skip review" exemption on top of it.
    the Dev Review state ID, or the Linear UI). The ticket should not remain
    "In Progress" once a PR is open against it.
 
+**For PR review comments and replies (review verdicts, threaded discussion, follow-up notes on someone else's PR or your own):**
+
+1. Write the proposed comment to `/tmp/pr-<N>-comment.md` (or `/tmp/pr-<ticket>-comment.md` if the ticket ID is clearer).
+2. Open it in the user's editor (e.g. `emacsclient -n /tmp/pr-<N>-comment.md`).
+3. Run the `humanizer` skill on the file. Always. After humanizing, re-scan for dev-jargon fragments and rewrite them as plain, brief, complete sentences a low- or mid-level engineer who is not a native English speaker can read without stumbling. Replace semicolons with periods or commas. Prefer contractions ("it's", "that's", "don't", "we're") over their expanded forms. Break up long sentences on conjunctions ("so", "and", "but"). The Voice and Focus rules from this file matter especially in PR comments — the comment is directed at a specific person who will reply, and the thread is public.
+4. Stop and tell the user the draft is open for review. Wait for explicit approval.
+5. After approval, post with the `gh` command that matches the comment type:
+   - Review-shaped comment (the reviewer's overall verdict on the PR): `gh pr review <N> --comment --body-file /tmp/pr-<N>-comment.md` (use `--approve` or `--request-changes` in place of `--comment` when formally approving or blocking)
+   - Issue-thread comment (general PR discussion, not a formal review): `gh pr comment <N> --body-file /tmp/pr-<N>-comment.md`
+   - Inline code comment pinned to a specific line/hunk: no direct `gh` flag — use `gh api /repos/<owner>/<repo>/pulls/<N>/comments -F body=@/tmp/pr-<N>-comment.md -F commit_id=... -F path=... -F line=...`
+6. Verify the comment landed. `gh api /repos/<owner>/<repo>/pulls/<N>/reviews` for review-shaped comments, `gh api /repos/<owner>/<repo>/issues/<N>/comments` for issue-thread comments.
+
 **Exception:** trivial one-liners the user dictated verbatim in the
-conversation (e.g. "commit this as `chore: bump version`") can skip the
-draft-file step in Step 2, but `/review-code --staged` in Step 1 still runs.
+conversation (e.g. "commit this as `chore: bump version`", "reply just
+'thanks for the review'") can skip the draft-file step in Step 2.
+`/review-code` in Step 1 still runs when it applies; Phase 0 of that skill
+handles trivial diffs, and acknowledgment-only replies don't need it at all.
 
 ### Hook-level authorization
 
