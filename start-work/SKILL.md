@@ -1,6 +1,6 @@
 ---
 name: start-work
-description: Pick up a task (Linear ticket, GitHub issue, todo.org task, or a described scope) and take it through Claim, Justify, Approach, Implement, Verify, and Hand-off. Three user-approval gates separate the phases. The Justify gate covers benefits, costs, engineer/user impact, urgency, effort, alternatives, and a ticket-quality check. The Approach gate covers root cause, risk, refactor prerequisites, test strategy (unit, integration, e2e, pairwise, characterization), migration and backwards-compat, feature-flag question, commit decomposition, and branch name. Implementation uses TDD (red, green, edge cases, refactor pass). A verify phase exercises the feature end-to-end in the local environment (Playwright against localhost for web projects, scripted manual test otherwise) before the final gate confirms readiness and hands off to the Review-and-Publish flow in commits.md. Use when starting work on a specific task where both "should we" and "how exactly" are worth deliberating. Do NOT use for open-ended bug investigation without a clear target (use debug first), for architectural paradigm exploration (use arch-design), for architectural decision recording (use arch-decide), when the task is trivial and obvious (just do it), or when requirements are still being shaped (use brainstorm).
+description: Pick up a task (Linear ticket, GitHub issue, todo.org task, or a described scope) and take it through Claim, Justify, Approach, Implement, Verify, and Hand-off. Three user-approval gates separate the phases. The Justify gate covers benefits, costs, engineer/user impact, urgency, effort, alternatives, and a ticket-quality check. The Approach gate covers root cause, risk, refactor prerequisites, test strategy (unit, integration, e2e, pairwise, characterization), migration and backwards-compat, feature-flag question, commit decomposition, and branch name. Implementation uses TDD (red, green, edge cases, refactor audit of every touched file). The audit walks the whole of each touched file against a language-agnostic checklist; every finding is either fixed on this branch or filed as a ticket — nothing is silently dropped. A verify phase exercises the feature end-to-end in the local environment (Playwright against localhost for web projects, scripted manual test otherwise) before the final gate confirms readiness and hands off to the Review-and-Publish flow in commits.md. Use when starting work on a specific task where both "should we" and "how exactly" are worth deliberating. Do NOT use for open-ended bug investigation without a clear target (use debug first), for architectural paradigm exploration (use arch-design), for architectural decision recording (use arch-decide), when the task is trivial and obvious (just do it), or when requirements are still being shaped (use brainstorm).
 ---
 
 # /start-work: pick up a task, justify it, plan it, build it
@@ -10,7 +10,7 @@ Three review gates separate the phases. The user can redirect or kill the work a
 1. **Claim.** Mark in-progress, assign, label, verify project.
 2. **Justify (gate 1).** Benefits, costs, impact, urgency, effort, alternatives, ticket quality. Stop for approval.
 3. **Approach (gate 2).** Root cause, risk, tests, migration, flag, commit decomposition. Stop for approval.
-4. **Implement.** TDD red, green, edge cases, refactor pass.
+4. **Implement.** TDD red, green, edge cases, refactor audit of every touched file.
 5. **Verify.** End-to-end or scripted manual test in the local environment.
 6. **Ready to commit (gate 3).** Report, stop for approval.
 7. **Hand off** to the Review-and-Publish flow in `commits.md`.
@@ -135,9 +135,11 @@ Follow the red-green-refactor cycle from `testing.md`.
    - Boundary: empty inputs, nulls, minimum and maximum values, single-element collections, Unicode, long strings, time and timezone boundaries, concurrent access.
    - Error: invalid inputs, missing required parameters, permission denied, resource exhaustion, malformed data, network failures.
    Commit as `test: add edge cases for <desc>`.
-5. **Refactor pass.** After tests are green, do a deliberate pass over the code you wrote or touched in this task. Keep tests green throughout. If they go red during the pass, you have changed behavior, not just form — stop and decide whether the change is intentional before proceeding.
+5. **Refactor audit.** After tests are green, audit every file you touched in this task — not just the code you wrote, but the whole file, top to bottom. The question is no longer "is my new code clean?" but "what refactoring opportunities exist in this file, and which belong on this branch versus a follow-up ticket?"
 
-   Review each of the following, in order. The checklist is language-agnostic. The same smells appear in Python, TypeScript, Go, Elisp, Rust, shell, SQL, and anything else.
+   Work the touched-file list explicitly. For each file, walk the checklist below (a through h), note every candidate, and decide its disposition. "Touching" a file means any modification, however small — a one-line edit still qualifies the whole file for audit. Keep tests green throughout. If they go red during a change, you have altered behavior, not just form — stop and decide whether the change is intentional before proceeding.
+
+   The checklist is language-agnostic. The same smells appear in Python, TypeScript, Go, Elisp, Rust, shell, SQL, and anything else.
 
    a. **Stale documentation.** Comments, docstrings, file headers, module-level summaries, READMEs, ADRs, architectural diagrams, or any prose that now contradicts the code. Update or delete. Prefer deletion when the documentation duplicates what the code, the tooling, or the runtime config already communicates — duplicated information is rotted documentation waiting to happen. The test: if a future reader would learn nothing from the doc that the code does not already say, drop it.
 
@@ -158,16 +160,17 @@ Follow the red-green-refactor cycle from `testing.md`.
 
    h. **Test smells.** Tests are code and rot the same way. Copy-pasted fixtures that should parametrize. Assertions that lock to implementation (exact strings, internal structure, field order) rather than behavior. Dead mocks that stub something the test no longer exercises. Mocks of internal helpers rather than external boundaries. See `testing.md` "Signs of overmocking."
 
-   i. **Scope boundary respect.** If you find a smell in code *outside* the surface you intentionally touched in this task, flag it as a follow-up — do not fix it here. Drive-by refactors balloon review time and muddy the commit history. Exception: a rename or structural change that would leave the codebase inconsistent if shipped half-done is fair game, and in fact required.
+   i. **Out-of-file scope.** The audit stops at the touched-file boundary. If you happen to notice a smell in a file you did not touch, do not expand the audit into it — file a ticket so the finding is not lost. Drive-by audits across the codebase balloon review time and break the working set. Exception: a rename or structural change that would leave the codebase inconsistent if shipped half-done is in scope and required.
 
-   **Decision for each candidate:**
+   **Disposition for each candidate.** Every candidate must land in one of three buckets. There is no silent drop.
 
-   - *Do it now, fold into the feature commit*: tiny, on code you just wrote in this task, obviously clearer, no new risk surface.
-   - *Do it as a separate `refactor:` commit on this branch*: on code you touched tangentially during this task, larger in scope, or changing the shape of something non-trivial. Separating it keeps the feature commit focused for review.
-   - *File as follow-up*: smell is entirely outside this task's surface. Open a ticket, add a TODO with a link, or raise it in the handoff report.
-   - *Skip*: speculative cleanup with no concrete clarity gain, a change that would conflict with existing project style, or a nit that only bothers you. Not every smell is worth cleaning. Cost-of-change matters.
+   - *Fix now, fold into the related feature or fix commit*: small, directly related to the task's work on this file, obviously clearer, no new risk surface.
+   - *Fix now, separate `refactor:` commit on this branch*: related to the surface you touched but larger in scope, or reshaping something non-trivial. Separating it keeps the feature commit focused for review.
+   - *File a ticket or todo.org entry*: the smell is real but unrelated to this task, lives in a touched file outside the task's working set, or was noticed in an untouched file. Filing — not skipping — is the default for anything that does not fit the two "fix now" cases. Capture enough detail that a future session can act on it: file path, line or function, smell category (one of a through h), and a one-line description.
 
-   **Stop condition.** Ask: "Would a reasonable reviewer flag this in review?" If the answer is no, stop. Refactoring can go on forever if you let it. Shipping beats polishing.
+   If a candidate feels too small to fix and too small to file, it was either not a real smell, or you are talking yourself out of a two-line todo entry. Write the entry.
+
+   **Stop conditions.** The *audit* is complete when every touched file has been walked and every candidate has a disposition. The *fixing* stops earlier: ask "would a reasonable reviewer flag this?" of the remaining in-scope candidates. If the answer is no, stop fixing and file the rest. Shipping beats polishing, but filing beats forgetting.
 
    Commit: group meaningful refactors into a `refactor: <desc>` commit when they stand on their own. Fold small tweaks into the associated feature or fix commit when they are tied to the same scope. The commit history should let a future reader see intent per commit, not a mixture of "did the thing" and "also cleaned up five unrelated corners."
 
@@ -222,7 +225,7 @@ Before handing off to the Review-and-Publish flow, stop and report:
 - What was done. Files changed, tests added, test-suite result.
 - What was verified in Phase 5, and how. For manual scripts, paste the step list so a reviewer can re-run the verification. For Playwright tests, name the test file.
 - Any deviations from the Phase 3 approach that happened during implementation, and why.
-- Any follow-up tickets surfaced along the way that should be filed separately (not rolled into this PR).
+- Follow-up tickets filed during the refactor audit, listed by ID so the reviewer can see what was deferred and why. "Surfaced" is not enough — these are actually filed before gate 3 clears, not left as a mental note.
 
 Wait for explicit approval before starting the commit and PR ceremony.
 
@@ -248,7 +251,8 @@ Follow `commits.md` exactly. Summary of the flow:
 - **Blurring the gates.** Write the justification, stop, wait. Do not pre-generate the approach while waiting. The user may kill the task and the pre-work gets wasted.
 - **Treating Feature tasks as skippable on the Approach gate.** Features especially need the migration, backwards-compat, and feature-flag questions answered up front.
 - **Letting the TDD cycle drift.** If the test passes before the implementation is written, the test is wrong. Confirm the red before moving to green.
-- **Skipping the refactor pass.** A green test suite is necessary, not sufficient. Five minutes with the refactor checklist catches the stale comment, the naming drift, and the duplicated expression that a reviewer will otherwise flag. Leave the code better than you found it, within scope.
+- **Skipping the refactor audit.** A green test suite is necessary, not sufficient. Walking the touched-file list against the refactor checklist catches the stale comment, the naming drift, and the duplicated expression that a reviewer will otherwise flag. Leave the code better than you found it, within scope — and file what you cannot fix on this branch.
+- **Auditing only the code you wrote.** "I only changed one line, the rest of the file isn't my problem" — it is, to the extent that you file what you see. The audit is per touched file, not per diff hunk. Anything noticed in a touched file lands somewhere: this branch or a ticket.
 - **Skipping the verify phase.** Green unit tests do not mean the feature works for the user. A one-second delay that looks fine on a mocked process is a broken experience on a real Hugo build. Five minutes of scripted manual testing or a Playwright run catches the gap before a reviewer does.
 
 ## Cross-references
