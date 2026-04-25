@@ -158,13 +158,21 @@ the specific case choice.
 - Never hardcode dates or times — generate them relative to `now()`
 - No reliance on test execution order
 - No flaky network calls in unit tests
-- Time/clock-mocking helpers must not call the primitives they're
-  mocking (infinite recursion), and must not `let`-bind over a
-  `defvar` or other globally-defined symbol (the binding shadows the
-  global only inside the test scope, so production code that reads the
-  symbol gets the original value, not the mock — silent test miss).
-  Mock by redefining at the symbol's definition site or via the
-  language's first-class mocking primitive.
+- Time/clock-mocking helpers must avoid two recurring failure modes:
+  - *Infinite recursion.* The helper must not call the primitive it's
+    replacing. If the mock for `now()` calls `now()`, the test stack
+    overflows. Compute the mock value from a fixed source (a captured
+    instant, an injected fake clock).
+  - *Scope-shadowing without reach.* A mock that only exists inside
+    the test function won't affect production code that reads the
+    symbol through its canonical path. Replace the symbol at its
+    definition site (monkey-patch the module attribute in Python,
+    redefine the global in Lisp, swap the package-level binding in
+    Go, replace the named export in JavaScript) — or inject a fake
+    via dependency-inversion. Don't lean on scope-shadowing
+    primitives (Lisp `let`, Python local rebind, JS shadowed `let`)
+    that fence the mock to the test's lexical scope; production code
+    won't see them and the test passes against the real clock.
 
 ### Performance
 - Unit tests: <100ms each
