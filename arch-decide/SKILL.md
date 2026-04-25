@@ -445,3 +445,7 @@ adr link 2 "Complements" 1 "Is complemented by"
 
 Forked from [wshobson/agents](https://github.com/wshobson/agents) — MIT licensed.
 See `LICENSE` in this directory for the original copyright and terms.
+
+## Content scope
+
+Output this skill produces that gets committed or shared with the team must follow the *Content scope for public artifacts* rule in [`commits.md`](../claude-rules/commits.md): no local paths, no private repo names, no personal tooling references.

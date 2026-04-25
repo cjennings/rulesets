@@ -190,3 +190,7 @@ The grow-and-refine / evidence-backed approach draws on Agentic Context Engineer
 - **Avoiding context collapse** — resist the temptation to rewrite old entries into smoother prose; specificity is the value
 
 This skill implements the Curation phase. Reflection and Generation happen in the main conversation.
+
+## Content scope
+
+Output this skill produces that gets committed or shared with the team must follow the *Content scope for public artifacts* rule in [`commits.md`](../claude-rules/commits.md): no local paths, no private repo names, no personal tooling references.

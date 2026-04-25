@@ -48,3 +48,7 @@ For each review comment, before implementing anything:
 
 - Summarize what was implemented, what was deferred, and what needs discussion
 - Link any follow-up issues created for out-of-scope suggestions
+
+## Content scope
+
+Output this skill produces that gets committed or shared with the team must follow the *Content scope for public artifacts* rule in [`commits.md`](../claude-rules/commits.md): no local paths, no private repo names, no personal tooling references.

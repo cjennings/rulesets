@@ -189,3 +189,7 @@ Before declaring the design accepted:
 - **Validate in chunks.** 200-300 words, then check.
 - **YAGNI ruthlessly.** Remove anything not justified by the problem statement.
 - **Back up when needed.** Revising early beats committing to wrong.
+
+## Content scope
+
+Output this skill produces that gets committed or shared with the team must follow the *Content scope for public artifacts* rule in [`commits.md`](../claude-rules/commits.md): no local paths, no private repo names, no personal tooling references.

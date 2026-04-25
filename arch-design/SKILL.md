@@ -243,3 +243,7 @@ After the brief is Accepted:
 - `arch-decide` — record each Open Decision as an ADR under `docs/adr/`
 - `arch-document` — expand into a full arc42-structured document under `docs/architecture/` with C4 diagrams
 - `arch-evaluate` — once code exists, audit it against this brief
+
+## Content scope
+
+Output this skill produces that gets committed or shared with the team must follow the *Content scope for public artifacts* rule in [`commits.md`](../claude-rules/commits.md): no local paths, no private repo names, no personal tooling references.

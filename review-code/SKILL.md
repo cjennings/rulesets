@@ -347,3 +347,7 @@ None.
 - **Important** → fix, or deliberately defer with an ADR (run `/arch-decide`)
 - **Minor** → follow-up issues or a cleanup PR
 - **Intent-vs-Delivery gaps** → either file tickets for the missing pieces or update the plan to reflect reality
+
+## Content scope
+
+Output this skill produces that gets committed or shared with the team must follow the *Content scope for public artifacts* rule in [`commits.md`](../claude-rules/commits.md): no local paths, no private repo names, no personal tooling references.

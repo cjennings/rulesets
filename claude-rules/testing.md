@@ -275,3 +275,7 @@ If you catch yourself thinking any of these, stop and write the test.
 - Non-deterministic tests (random without seed, network in unit tests)
 - Testing framework behavior instead of your code
 - Ignoring or skipping failing tests without a tracking issue
+
+## Content scope
+
+Test code, fixtures, docstrings, and comments are checked into the repo and visible to the team. They must follow the *Content scope for public artifacts* rule in [`commits.md`](commits.md): no local paths, no private repo names, no personal tooling references.

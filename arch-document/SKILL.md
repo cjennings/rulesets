@@ -311,3 +311,7 @@ arc42 is a living document. Re-run `arch-document` when:
 - A scenario's behavior or SLO changes → section 6 or 10
 
 Commit each regeneration. The document's Git history is part of the architecture record.
+
+## Content scope
+
+Output this skill produces that gets committed or shared with the team must follow the *Content scope for public artifacts* rule in [`commits.md`](../claude-rules/commits.md): no local paths, no private repo names, no personal tooling references.

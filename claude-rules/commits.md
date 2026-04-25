@@ -98,15 +98,30 @@ project. Don't mention:
 Rule of thumb: if a teammate couldn't find the referenced thing without
 the user's help, don't reference it.
 
-Structure shipped-fix descriptions in this order, using the headings
-verbatim:
+Different artifact types carry different content. Don't duplicate.
+
+**Linear ticket bodies:** two sections, in order.
 
 1. **Problem** — what's wrong, with enough detail that a teammate can
    recognize the same failure mode in their own work.
-2. **Fix** — what changed.
+2. **Fix** — what changed (or what's proposed).
+
+The causal "why" and the test verification belong in the PR, not the
+ticket. Linear's GitHub integration auto-cross-links once the PR body
+includes the `Linear:` line, so the ticket reader reaches the PR
+without needing a body-level link.
+
+**PR descriptions:** four sections, in order. Same first two as the
+ticket, plus:
+
 3. **Why this fixes it** — causal link, one or two sentences.
-4. **How it was tested** — skip for proposals, specs, or discussions.
-   Required for shipped fixes.
+4. **How it was tested** — skip for proposals, specs, or discussions;
+   required for shipped fixes.
+
+The PR is the technical artifact. It carries the detail.
+
+**PR review comments** are conversational and don't follow this
+structure — they follow the Voice and Focus rules above.
 
 Verbose preambles, motivational language, and context unrelated to the
 problem belong out. Same conciseness pressure as commit-message bodies.
