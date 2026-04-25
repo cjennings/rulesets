@@ -214,6 +214,15 @@ conversation (e.g. "commit this as `chore: bump version`", "reply just
 `/review-code` in Step 1 still runs when it applies; Phase 0 of that skill
 handles trivial diffs, and acknowledgment-only replies don't need it at all.
 
+**Multi-pass gate.** Each of the three subflows above lists a humanizer
+invocation followed by a sequence of additional passes (jargon rewrite,
+semicolon swap, contractions, sentence split). When the user asks for
+"both passes" or "all the passes" or just for the humanizer step, run
+*every* listed pass — not just the first or a representative subset.
+Before declaring done, name the passes you actually ran (e.g.
+"humanizer + jargon + semicolons + contractions + sentence-split — all
+applied"). Skipping a pass without flagging it is a defect.
+
 ### Hook-level authorization
 
 The Step 1 code review plus the Step 2 user approval together constitute the
@@ -222,6 +231,21 @@ prompt is needed on `git commit`, `gh pr create`, `git push`, or their
 variants once Step 2 has been approved. If a hook is configured, rely on the
 flow above to be the source of truth; do not treat the hook as a second
 independent gate.
+
+## Merge Strategy
+
+- *Squash-merge is the default* for feature branches. It avoids carrying
+  WIP and fix-up commits into the target branch history and produces one
+  logical change per merge.
+- State the planned merge approach (squash, rebase, or merge commit) and
+  the target branch *before* pushing or merging. Wait for explicit user
+  confirmation before `git push`, `gh pr merge`, or any equivalent. The
+  Review and Publish flow above approves the *content*; merge strategy is
+  a separate decision that needs its own confirmation.
+- Override the squash default only when there's a concrete reason: a
+  clean per-commit review history the user has explicitly asked for, a
+  multi-commit semantic narrative the team values, etc. Squash is the
+  safe default; document why when deviating.
 
 ## Before Committing
 

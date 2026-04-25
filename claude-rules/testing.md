@@ -158,6 +158,13 @@ the specific case choice.
 - Never hardcode dates or times — generate them relative to `now()`
 - No reliance on test execution order
 - No flaky network calls in unit tests
+- Time/clock-mocking helpers must not call the primitives they're
+  mocking (infinite recursion), and must not `let`-bind over a
+  `defvar` or other globally-defined symbol (the binding shadows the
+  global only inside the test scope, so production code that reads the
+  symbol gets the original value, not the mock — silent test miss).
+  Mock by redefining at the symbol's definition site or via the
+  language's first-class mocking primitive.
 
 ### Performance
 - Unit tests: <100ms each
