@@ -136,12 +136,21 @@ enough to skip review" exemption on top of it.
 5. Stop and tell the user the draft is open for review. Wait for explicit approval.
 6. After approval, split the file on the first blank line and pass the title
    and body to `gh pr create --title "..." --body "$(tail -n +3 <file>)"` (or
-   a heredoc) so formatting is preserved.
-7. After `gh pr create` returns a URL, post a comment on the linked Linear
+   a heredoc) so formatting is preserved. Add `--reviewer <user[,user...]>`
+   in the same call when you already know who should review.
+7. Request reviewers on the new PR if you didn't pass `--reviewer` at create
+   time. Use `gh pr edit <N> --add-reviewer <user>`. If the repo has a
+   `CODEOWNERS` file, GitHub auto-suggests based on touched paths; still
+   issue the explicit request so the reviewer gets notified. Pick reviewers
+   per the team's convention for the area touched (often documented in the
+   per-repo `CLAUDE.md`). For follow-up PRs, consider tagging the parent
+   PR's author if their context would help. PRs without a human reviewer
+   request stall — "checks passed" is not a substitute for review.
+8. After `gh pr create` returns a URL, post a comment on the linked Linear
    ticket with the PR URL (use the Linear MCP `save_comment` tool, or open
    the ticket manually if MCP is unavailable). This closes the ticket→PR
    direction of the cross-link.
-8. Move the Linear ticket to the "Dev Review" status (use `save_issue` with
+9. Move the Linear ticket to the "Dev Review" status (use `save_issue` with
    the Dev Review state ID, or the Linear UI). The ticket should not remain
    "In Progress" once a PR is open against it.
 
