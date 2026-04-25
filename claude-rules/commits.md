@@ -84,6 +84,33 @@ argument is `Mission`, not `unknown`" beats the full inference chain
 that produces that signature. Keep the terms a reader will grep for,
 drop the ones that name compiler internals.
 
+## Content scope for public artifacts
+
+PR descriptions, Linear ticket bodies, and PR review comments are
+visible to the team and to anyone with read access to the repo or
+project. Don't mention:
+
+- Local file paths on the user's personal machine.
+- Private repos by name (e.g. a personal notes repo, a career repo).
+- Personal tooling or workflow the team doesn't share.
+- Anything a teammate couldn't reproduce or act on from public sources.
+
+Rule of thumb: if a teammate couldn't find the referenced thing without
+the user's help, don't reference it.
+
+Structure shipped-fix descriptions in this order, using the headings
+verbatim:
+
+1. **Problem** — what's wrong, with enough detail that a teammate can
+   recognize the same failure mode in their own work.
+2. **Fix** — what changed.
+3. **Why this fixes it** — causal link, one or two sentences.
+4. **How it was tested** — skip for proposals, specs, or discussions.
+   Required for shipped fixes.
+
+Verbose preambles, motivational language, and context unrelated to the
+problem belong out. Same conciseness pressure as commit-message bodies.
+
 ## Review and Publish
 
 Commits and PRs are team-visible, permanent, and hard to amend once shared
