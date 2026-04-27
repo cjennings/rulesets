@@ -4,11 +4,7 @@ SHELL := /bin/bash
 SKILLS_DIR := $(HOME)/.claude/skills
 RULES_DIR  := $(HOME)/.claude/rules
 HOOKS_DIR  := $(HOME)/.claude/hooks
-SKILLS     := c4-analyze c4-diagram debug add-tests respond-to-review review-code start-work security-check \
-              arch-design arch-decide arch-document arch-evaluate \
-              brainstorm codify root-cause-trace five-whys prompt-engineering \
-              playwright-js playwright-py frontend-design pairwise-tests \
-              finish-branch create-v2mom
+SKILLS     := $(patsubst %/SKILL.md,%,$(wildcard */SKILL.md))
 RULES      := $(wildcard claude-rules/*.md)
 HOOKS      := $(wildcard hooks/*.sh hooks/*.py)
 LANGUAGES  := $(notdir $(wildcard languages/*))
@@ -125,6 +121,16 @@ install: ## Symlink skills and rules into ~/.claude/
 		fi \
 	done
 	@echo ""
+	@echo "Bridge symlink (lets SKILL.md cross-refs to ../claude-rules/ resolve from the install layout):"
+	@if [ -L "$(SKILLS_DIR)/claude-rules" ]; then \
+		echo "  skip  claude-rules (already linked)"; \
+	elif [ -e "$(SKILLS_DIR)/claude-rules" ]; then \
+		echo "  WARN  claude-rules exists and is not a symlink — skipping"; \
+	else \
+		ln -s "$(CURDIR)/claude-rules" "$(SKILLS_DIR)/claude-rules"; \
+		echo "  link  claude-rules → $(SKILLS_DIR)/claude-rules"; \
+	fi
+	@echo ""
 	@echo "done"
 
 uninstall: ## Remove global symlinks from ~/.claude/
@@ -148,6 +154,14 @@ uninstall: ## Remove global symlinks from ~/.claude/
 			echo "  skip  $$name (not a symlink)"; \
 		fi \
 	done
+	@echo ""
+	@echo "Bridge symlink:"
+	@if [ -L "$(SKILLS_DIR)/claude-rules" ]; then \
+		rm "$(SKILLS_DIR)/claude-rules"; \
+		echo "  rm    claude-rules"; \
+	else \
+		echo "  skip  claude-rules (not a symlink)"; \
+	fi
 	@echo ""
 	@echo "done"
 

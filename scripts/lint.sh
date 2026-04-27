@@ -5,6 +5,9 @@
 #   - Every rule file has an 'Applies to:' header
 #   - Every language CLAUDE.md has a top-level heading
 #   - Every hook script has a shebang and is executable
+#   - Every cross-reference to claude-rules/ from a SKILL.md or
+#     claude-rules/*.md resolves to a real file (catches the install-layout
+#     drift that the bridge symlink fixes)
 
 set -u
 
@@ -45,6 +48,32 @@ check_hook() {
   fi
 }
 
+check_md_links() {
+  # Validate cross-references to claude-rules/ — the install-layout problem
+  # solved by the bridge symlink in `make install`. Doesn't validate
+  # example file names that skills cite illustratively (e.g. ADR templates,
+  # arc42 section files), which are intentionally not real source files.
+  local f="$1"
+  [ -f "$f" ] || return 0
+  local dir
+  dir="$(dirname "$f")"
+  while IFS= read -r link; do
+    local url="${link##*\(}"
+    url="${url%\)}"
+    case "$url" in
+      *claude-rules/*) ;;
+      *) continue ;;
+    esac
+    url="${url%%#*}"
+    url="${url%%\?*}"
+    local resolved
+    resolved="$(cd "$dir" 2>/dev/null && readlink -m "$url" 2>/dev/null)"
+    if [ -z "$resolved" ] || [ ! -e "$resolved" ]; then
+      warn "$f — broken claude-rules link: $url"
+    fi
+  done < <(grep -oE '\[[^]]*\]\([^)]+\)' "$f" 2>/dev/null || true)
+}
+
 echo "Linting rulesets in $REPO_ROOT"
 
 # Generic rules
@@ -80,6 +109,12 @@ done
 for s in scripts/*.sh; do
   [ -f "$s" ] || continue
   check_hook "$s"
+done
+
+# Markdown link validation across rules and skills
+for f in claude-rules/*.md */SKILL.md; do
+  [ -f "$f" ] || continue
+  check_md_links "$f"
 done
 
 echo "---"
